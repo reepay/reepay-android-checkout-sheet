@@ -14,5 +14,4 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = "Reepay Checkout SDK"
-include(":app")
 include(":checkout")

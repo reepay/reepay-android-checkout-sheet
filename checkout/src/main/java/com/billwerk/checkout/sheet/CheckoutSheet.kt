@@ -12,6 +12,15 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 
 
+/**
+ * Configuration class for checkout sheet.
+ *
+ * @property sessionId Billwerk+ checkout session id
+ * @property acceptURL (Optional) Accept URL of checkout session. Must be identical to accept url defined in the checkout session to work correctly
+ * @property cancelURL (Optional) Cancel URL of checkout session. Must be identical to cancel url defined in the checkout session to work correctly
+ * @property sheetStyle Style of the checkout sheet. Sets the default height of the sheet. Default: [SheetStyle.MEDIUM].
+ * @property dismissible If set to `true`, the sheet will render a close button and be dismissible by pressing outside the checkout sheet hit box.
+ */
 data class CheckoutSheetConfig(
     val sessionId: String,
     val acceptURL: String?,
@@ -24,14 +33,23 @@ enum class SheetStyle {
     MEDIUM, LARGE, FULL_SCREEN
 }
 
+/**
+ * The
+ *
+ * @property context The context used to inflate layouts and access resources.
+ */
 class CheckoutSheet(private val context: Context) {
 
     private val deviceHeight = Resources.getSystem().displayMetrics.heightPixels
     private var isDialogOpen = false
 
+    /**
+     * Opens the checkout sheet
+     *
+     *  @param config The configuration that the checkout sheet should be loaded with
+     */
     fun open(config: CheckoutSheetConfig) {
         // Validate session ID
-        // TODO: valididate before opening
         if (!SessionValidator.validateToken(config.sessionId)) {
             throw IllegalArgumentException("Invalid session ID")
         }
@@ -58,8 +76,6 @@ class CheckoutSheet(private val context: Context) {
                 SheetStyle.MEDIUM -> behavior.maxHeight = deviceHeight / 2
                 SheetStyle.LARGE -> behavior.maxHeight = (deviceHeight * 0.75).toInt()
                 SheetStyle.FULL_SCREEN -> behavior.maxHeight = deviceHeight
-                // TODO: make fullscreen even if webview is not tall enough
-                // TODO: tilføj customizable height (percentage)
             }
             behavior.peekHeight = deviceHeight
             behavior.isDraggable = false
@@ -67,7 +83,6 @@ class CheckoutSheet(private val context: Context) {
                 override fun onStateChanged(bottomSheet: View, newState: Int) {
                     if (newState == BottomSheetBehavior.STATE_HIDDEN) {
                         emitEvent(Event.CANCEL)
-                        // TODO: perhaps add confirm dialog to warn
                         dismiss(bottomSheetDialog)
                     }
                 }
@@ -83,14 +98,10 @@ class CheckoutSheet(private val context: Context) {
             closeBtn.apply {
                 visibility = View.VISIBLE
                 setOnClickListener {
-                    emitEvent(Event.CANCEL) // TODO: don't emit cancel event, but rather close event
                     dismiss(bottomSheetDialog)
                 }
             }
         }
-
-
-        // TODO: listen for event when sheet is dismissed?
 
         bottomSheetDialog.setContentView(view)
         setupWebView(view, bottomSheetDialog, config)
@@ -106,7 +117,7 @@ class CheckoutSheet(private val context: Context) {
         val webView = view.findViewById<WebView>(R.id.rp_webView)
 
         webView.apply {
-            loadUrl("https://staging-checkout.reepay.com/#/${config?.sessionId}") // TODO: customize environment
+            loadUrl("https://staging-checkout.reepay.com/#/${config?.sessionId}")
             settings.javaScriptEnabled = true
             settings.safeBrowsingEnabled = true
             webViewClient = object : WebViewClient() {
@@ -122,14 +133,16 @@ class CheckoutSheet(private val context: Context) {
                             bottomSheetDialog.behavior.maxHeight = deviceHeight
                         }
 
-                        // TODO: if acceptUrl == null && url.contains(checkout web success page), notify payment has succeeded
+                        // TODO: add event:
+                        // if acceptUrl == null && url.contains(checkout web success page), notify payment has succeeded
 
                         config?.cancelURL != null && url.contains(config.cancelURL) -> {
                             emitEvent(Event.CANCEL)
                             bottomSheetDialog.behavior.maxHeight = deviceHeight
                         }
 
-                        // TODO: if cancelUrl == null, notify payment has failed
+                        // TODO: add event:
+                        // if cancelUrl == null, notify payment has failed
                     }
                     return false
                 }

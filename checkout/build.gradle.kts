@@ -4,7 +4,7 @@ buildscript {
     repositories {
         google()
         mavenCentral()
-        mavenLocal()            // << --- ADD This
+        mavenLocal()
     }
 
     dependencies {
@@ -55,34 +55,9 @@ java {
     }
 }
 
-
 java {
     sourceCompatibility = JavaVersion.VERSION_17
     targetCompatibility = JavaVersion.VERSION_17
-}
-
-// TODO: may not be needed if using Jitpack
-configure<PublishingExtension> {
-    publications.create<MavenPublication>("ReepayCheckoutSDK") {
-        groupId = "com.github.reepay"
-        artifactId = "checkout"
-        artifact("$buildDir/outputs/aar/checkout-release.aar")
-        version = "1.0.2"
-        pom {
-            description = "Checkout SDK for Billwerk"
-        }
-    }
-    repositories {
-        maven {
-            name = "GithubPackages"
-            url = uri("https://maven.pkg.github.com/reepay/reepay-android-checkout-sheet")
-            credentials {
-                username = System.getenv("ANDROID_GITHUB_USER")
-                password = System.getenv("ANDROID_GITHUB_TOKEN")
-            }
-        }
-        mavenLocal()
-    }
 }
 
 dependencies {

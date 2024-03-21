@@ -22,6 +22,8 @@ class CheckoutEvent {
     }
 
     companion object {
+
+        /** A flow that shares emitted events from Billwerk+'s checkout  */
         val events get(): SharedFlow<String> = CheckoutEventBus.events
 
         fun emitEvent(event: Event) {
