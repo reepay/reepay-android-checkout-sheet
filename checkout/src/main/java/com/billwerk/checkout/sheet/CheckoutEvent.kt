@@ -23,9 +23,10 @@ class CheckoutEvent {
 
     companion object {
 
-        /** A flow that shares emitted events from Billwerk+'s checkout  */
+        /** Broadcasts the events emitted from the Reepay checkout session  */
         val events get(): SharedFlow<String> = CheckoutEventBus.events
 
+        /** Emits the checkout session event */
         fun emitEvent(event: Event) {
             CoroutineScope(Dispatchers.Main).launch {
                 CheckoutEventBus.emitEvent(getEventType(event))

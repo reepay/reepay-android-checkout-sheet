@@ -34,9 +34,9 @@ enum class SheetStyle {
 }
 
 /**
- * The
+ * The main class of the Checkout SDK used to create a sheet that displays a Reepay checkout session.
  *
- * @property context The context used to inflate layouts and access resources.
+ * @property context The context in which the sheet should be inflated in
  */
 class CheckoutSheet(private val context: Context) {
 
@@ -44,7 +44,7 @@ class CheckoutSheet(private val context: Context) {
     private var isDialogOpen = false
 
     /**
-     * Opens the checkout sheet
+     * Opens the checkout sheet based on the provided configuration
      *
      *  @param config The configuration that the checkout sheet should be loaded with
      */
@@ -70,6 +70,7 @@ class CheckoutSheet(private val context: Context) {
 
         dismiss(bottomSheetDialog)
 
+        // Configure sheet behavior
         bottomSheetDialog.apply {
             setCancelable(config.dismissible)
             when (config.sheetStyle) {
@@ -82,7 +83,6 @@ class CheckoutSheet(private val context: Context) {
             behavior.addBottomSheetCallback(object : BottomSheetBehavior.BottomSheetCallback() {
                 override fun onStateChanged(bottomSheet: View, newState: Int) {
                     if (newState == BottomSheetBehavior.STATE_HIDDEN) {
-                        emitEvent(Event.CANCEL)
                         dismiss(bottomSheetDialog)
                     }
                 }
@@ -94,6 +94,7 @@ class CheckoutSheet(private val context: Context) {
         }
 
         if (config.dismissible) {
+            // Attach close button
             val closeBtn = view.findViewById<ImageButton>(R.id.button_close)
             closeBtn.apply {
                 visibility = View.VISIBLE
@@ -102,6 +103,8 @@ class CheckoutSheet(private val context: Context) {
                 }
             }
         }
+
+        // Display the checkout sheet and its contents
 
         bottomSheetDialog.setContentView(view)
         setupWebView(view, bottomSheetDialog, config)
