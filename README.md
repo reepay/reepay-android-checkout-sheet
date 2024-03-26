@@ -1,6 +1,12 @@
+⚠️ This SDK is under development and not yet officially supported.
+
+---
+
 # ReepayCheckoutSheet Android SDK Module
 
 CheckoutSheet is a prebuilt UI that contains the steps to pay in Reepay Checkout window - collecting payment details and confirming the payment. The checkout is placed into a sheet or a fullscreen cover that displays on top of your app's UI.
+
+See official [documentation](https://optimize-docs.billwerk.com/docs/checkout-sdk-for-android)
 
 ## Table of contents
 
