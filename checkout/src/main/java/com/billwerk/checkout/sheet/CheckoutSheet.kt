@@ -119,7 +119,7 @@ class CheckoutSheet(private val context: Context) {
         val webView = view.findViewById<WebView>(R.id.rp_webView)
 
         webView.apply {
-            loadUrl("https://staging-checkout.reepay.com/#/${config?.sessionId}")
+            loadUrl("https://checkout.reepay.com/#/${config.sessionId}")
             settings.javaScriptEnabled = true
             settings.safeBrowsingEnabled = true
             webViewClient = object : WebViewClient() {
