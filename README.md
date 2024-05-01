@@ -36,28 +36,20 @@ The ReepayCheckoutSheet module is compatible with apps targeting Android 8.0 (AP
 Official documentation and instructions can be found [here](https://docs.jitpack.io/private/)
 
 **Step 1.**
-Request a personal access token to Jitpack from an administrator
-
-Add the token to $HOME/.gradle/gradle.properties:
-
-```
-authToken=INSERT_ACCESS_TOKEN_HERE
-```
-
-**Step 2.**
 Add Jitpack to root `settings.gradle` file
 
 ```gradle
-repositories {
-    url = uri("https://jitpack.io")
-    credentials {
-        username = authToken /* or use environment variable, e.g. System.getenv("JITPACK_SECRET")*/
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+    repositories {
+        mavenCentral()
+        maven { url 'https://jitpack.io' }
     }
 }
 ```
 
-**Step 3.**
-Add dependency to `build.gradle`kts`
+**Step 2.**
+Add dependency to `build.gradle.kts`. Replace `TAG` with the desired version number
 
 ```gradle
 dependencies {
@@ -107,10 +99,10 @@ override fun onCreate(savedInstanceState: Bundle?) {
     // Create configuration
     val config = CheckoutSheetConfig(
         sessionId = "", // Session id from Reepay checkout
-        acceptURL = null, // Required if session has accept url to work
-        cancelURL = null, // Required if session has cancel url to work
+        acceptURL = "", // Required for session status to work correctly
+        cancelURL = "", // Required for session status to work correctly
         sheetStyle = SheetStyle.LARGE, // Sets the height of the sheets
-        dismissible = true // If enabled, an X button will appear in the top-left corner ofthe sheet
+        dismissible = true // If enabled, an X button will appear in the top-left corner of the sheet
     )
 
     // Open checkoutSheet (for example, inside a setOnClickListener)
