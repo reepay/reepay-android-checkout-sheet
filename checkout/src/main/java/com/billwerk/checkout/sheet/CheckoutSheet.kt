@@ -136,16 +136,10 @@ class CheckoutSheet(private val context: Context) {
                             bottomSheetDialog.behavior.maxHeight = deviceHeight
                         }
 
-                        // TODO: add event:
-                        // if acceptUrl == null && url.contains(checkout web success page), notify payment has succeeded
-
                         config?.cancelURL != null && url.contains(config.cancelURL) -> {
                             emitEvent(Event.CANCEL)
                             bottomSheetDialog.behavior.maxHeight = deviceHeight
                         }
-
-                        // TODO: add event:
-                        // if cancelUrl == null, notify payment has failed
                     }
                     return false
                 }
