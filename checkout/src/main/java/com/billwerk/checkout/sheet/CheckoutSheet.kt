@@ -16,15 +16,15 @@ import com.google.android.material.bottomsheet.BottomSheetDialog
  * Configuration class for checkout sheet.
  *
  * @property sessionId Billwerk+ checkout session id
- * @property acceptURL (Optional) Accept URL of checkout session. Must be identical to accept url defined in the checkout session to work correctly
- * @property cancelURL (Optional) Cancel URL of checkout session. Must be identical to cancel url defined in the checkout session to work correctly
+ * @property acceptURL Accept URL of checkout session. Must be identical to accept url defined in the checkout session to work correctly
+ * @property cancelURL Cancel URL of checkout session. Must be identical to cancel url defined in the checkout session to work correctly
  * @property sheetStyle Style of the checkout sheet. Sets the default height of the sheet. Default: [SheetStyle.MEDIUM].
  * @property dismissible If set to `true`, the sheet will render a close button and be dismissible by pressing outside the checkout sheet hit box.
  */
 data class CheckoutSheetConfig(
     val sessionId: String,
-    val acceptURL: String?,
-    val cancelURL: String?,
+    val acceptURL: String,
+    val cancelURL: String,
     val sheetStyle: SheetStyle = SheetStyle.MEDIUM,
     val dismissible: Boolean = true
 )
@@ -105,7 +105,6 @@ class CheckoutSheet(private val context: Context) {
         }
 
         // Display the checkout sheet and its contents
-
         bottomSheetDialog.setContentView(view)
         setupWebView(view, bottomSheetDialog, config)
 
@@ -115,12 +114,12 @@ class CheckoutSheet(private val context: Context) {
     private fun setupWebView(
         view: View,
         bottomSheetDialog: BottomSheetDialog,
-        config: CheckoutSheetConfig?
+        config: CheckoutSheetConfig
     ) {
         val webView = view.findViewById<WebView>(R.id.rp_webView)
 
         webView.apply {
-            loadUrl("https://staging-checkout.reepay.com/#/${config?.sessionId}")
+            loadUrl("https://checkout.reepay.com/#/${config.sessionId}")
             settings.javaScriptEnabled = true
             settings.safeBrowsingEnabled = true
             webViewClient = object : WebViewClient() {
@@ -131,22 +130,17 @@ class CheckoutSheet(private val context: Context) {
                 ): Boolean {
                     val url = request?.url.toString()
                     when {
-                        config?.acceptURL != null && url.contains(config.acceptURL) -> {
+                        config.acceptURL != "" && url.contains(config.acceptURL) -> {
                             emitEvent(Event.ACCEPT)
                             bottomSheetDialog.behavior.maxHeight = deviceHeight
                         }
 
-                        // TODO: add event:
-                        // if acceptUrl == null && url.contains(checkout web success page), notify payment has succeeded
-
-                        config?.cancelURL != null && url.contains(config.cancelURL) -> {
+                        config.acceptURL != "" && url.contains(config.cancelURL) -> {
                             emitEvent(Event.CANCEL)
                             bottomSheetDialog.behavior.maxHeight = deviceHeight
                         }
-
-                        // TODO: add event:
-                        // if cancelUrl == null, notify payment has failed
                     }
+
                     return false
                 }
             }
