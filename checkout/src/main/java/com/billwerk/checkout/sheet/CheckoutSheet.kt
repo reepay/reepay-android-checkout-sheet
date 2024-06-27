@@ -151,7 +151,7 @@ class CheckoutSheet(private val context: Context) {
         return CheckoutEvent.emitEvent(event)
     }
 
-    private fun dismiss(bottomSheetDialog: BottomSheetDialog) {
+    fun dismiss(bottomSheetDialog: BottomSheetDialog) {
         isDialogOpen = false
         bottomSheetDialog.dismiss()
     }
