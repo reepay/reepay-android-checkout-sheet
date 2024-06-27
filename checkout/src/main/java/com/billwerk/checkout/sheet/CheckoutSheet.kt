@@ -132,33 +132,25 @@ class CheckoutSheet(private val context: Context) {
                     request: WebResourceRequest?
                 ): Boolean {
                     val url = request?.url.toString()
+
                     when {
                         url === config.acceptURL -> {
                             emitEvent(Event.ACCEPT)
                             bottomSheetDialog.behavior.maxHeight = deviceHeight
-                            startActivity(
-                                context,
-                                Intent(Intent.ACTION_VIEW, Uri.parse(url)).apply {},
-                                null,
-                            )
-                            return true
                         }
 
                         url === config.cancelURL -> {
                             emitEvent(Event.CANCEL)
                             bottomSheetDialog.behavior.maxHeight = deviceHeight
-                            startActivity(
-                                context,
-                                Intent(Intent.ACTION_VIEW, Uri.parse(url)).apply {
-//                                    setPackage("dk.rejsekort.digitalrejsekort.dev")
-                                },
-                                null,
-                            )
-                            return true
                         }
                     }
 
-                    return false
+                    if (request?.url?.scheme == "intent") {
+                        startActivity(context, Intent.parseUri(url, Intent.URI_INTENT_SCHEME), null)
+                        return true
+                    } else {
+                        return false
+                    }
                 }
             }
         }
