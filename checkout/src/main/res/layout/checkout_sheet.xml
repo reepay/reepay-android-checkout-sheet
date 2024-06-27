@@ -24,7 +24,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="top|start"
         android:padding="10dp"
-        android:src="@drawable/ic_close"
+        android:src="@drawable/billwerk_close_icon"
         android:contentDescription="@string/close_button"
         android:background="#00ffffff"
         android:visibility="gone" />
