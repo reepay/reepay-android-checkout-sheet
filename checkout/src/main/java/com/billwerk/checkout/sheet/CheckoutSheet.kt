@@ -1,13 +1,16 @@
 package com.billwerk.checkout
 
 import android.content.Context
+import android.content.Intent
 import android.content.res.Resources
+import android.net.Uri
 import android.view.LayoutInflater
 import android.view.View
 import android.webkit.WebResourceRequest
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.widget.ImageButton
+import androidx.core.content.ContextCompat.startActivity
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 
@@ -106,12 +109,13 @@ class CheckoutSheet(private val context: Context) {
 
         // Display the checkout sheet and its contents
         bottomSheetDialog.setContentView(view)
-        setupWebView(view, bottomSheetDialog, config)
+        setupWebView_optionB(view, bottomSheetDialog, config)
 
         bottomSheetDialog.show()
     }
 
-    private fun setupWebView(
+    // Solution #1
+    private fun setupWebView_optionA(
         view: View,
         bottomSheetDialog: BottomSheetDialog,
         config: CheckoutSheetConfig
@@ -125,23 +129,70 @@ class CheckoutSheet(private val context: Context) {
             webViewClient = object : WebViewClient() {
                 @Override
                 override fun shouldOverrideUrlLoading(
-                    view: WebView?,
-                    request: WebResourceRequest?
+                    view: WebView,
+                    request: WebResourceRequest,
                 ): Boolean {
-                    val url = request?.url.toString()
+                    val url = request.url.toString()
                     when {
-                        config.acceptURL != "" && url.contains(config.acceptURL) -> {
-                            emitEvent(Event.ACCEPT)
-                            bottomSheetDialog.behavior.maxHeight = deviceHeight
-                        }
-
-                        config.acceptURL != "" && url.contains(config.cancelURL) -> {
+                        url.contains(config.cancelURL) -> {
                             emitEvent(Event.CANCEL)
                             bottomSheetDialog.behavior.maxHeight = deviceHeight
+                            startActivity(
+                                context,
+                                Intent(Intent.ACTION_VIEW, Uri.parse(url)).apply {
+//                                    setPackage("dk.rejsekort.digitalrejsekort.dev")
+                                },
+                                null,
+                            )
+                            return true
                         }
+
+                        url.contains(config.acceptURL) -> {
+                            emitEvent(Event.ACCEPT)
+                            bottomSheetDialog.behavior.maxHeight = deviceHeight
+                            startActivity(
+                                context,
+                                Intent(Intent.ACTION_VIEW, Uri.parse(url)).apply {
+//                                    setPackage("dk.rejsekort.digitalrejsekort.dev")
+                                },
+                                null,
+                            )
+                            return true
+                        }
+
                     }
 
                     return false
+                }
+            }
+        }
+    }
+
+    // Solution #2
+    private fun setupWebView_optionB(
+        view: View,
+        bottomSheetDialog: BottomSheetDialog,
+        config: CheckoutSheetConfig
+    ) {
+        val webView = view.findViewById<WebView>(R.id.rp_webView)
+
+        webView.apply {
+            loadUrl("https://checkout.reepay.com/#/${config.sessionId}")
+            settings.javaScriptEnabled = true
+            settings.safeBrowsingEnabled = true
+            webViewClient = object : WebViewClient() {
+                @Override
+                override fun shouldOverrideUrlLoading(
+                    view: WebView,
+                    request: WebResourceRequest,
+                ): Boolean {
+                    if (request.url.scheme == "intent") {
+                        val url = request.url.toString()
+                        startActivity(context, Intent.parseUri(url, Intent.URI_INTENT_SCHEME), null)
+                        return true
+                    } else {
+                        return false
+                    }
                 }
             }
         }
