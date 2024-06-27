@@ -1,13 +1,16 @@
 package com.billwerk.checkout
 
 import android.content.Context
+import android.content.Intent
 import android.content.res.Resources
+import android.net.Uri
 import android.view.LayoutInflater
 import android.view.View
 import android.webkit.WebResourceRequest
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.widget.ImageButton
+import androidx.core.content.ContextCompat.startActivity
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 
@@ -130,14 +133,28 @@ class CheckoutSheet(private val context: Context) {
                 ): Boolean {
                     val url = request?.url.toString()
                     when {
-                        config.acceptURL != "" && url.contains(config.acceptURL) -> {
+                        url === config.acceptURL -> {
                             emitEvent(Event.ACCEPT)
                             bottomSheetDialog.behavior.maxHeight = deviceHeight
+                            startActivity(
+                                context,
+                                Intent(Intent.ACTION_VIEW, Uri.parse(url)).apply {},
+                                null,
+                            )
+                            return true
                         }
 
-                        config.acceptURL != "" && url.contains(config.cancelURL) -> {
+                        url === config.cancelURL -> {
                             emitEvent(Event.CANCEL)
                             bottomSheetDialog.behavior.maxHeight = deviceHeight
+                            startActivity(
+                                context,
+                                Intent(Intent.ACTION_VIEW, Uri.parse(url)).apply {
+//                                    setPackage("dk.rejsekort.digitalrejsekort.dev")
+                                },
+                                null,
+                            )
+                            return true
                         }
                     }
 
