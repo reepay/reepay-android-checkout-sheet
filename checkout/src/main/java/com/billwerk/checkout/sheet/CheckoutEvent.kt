@@ -8,7 +8,7 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 
 enum class Event {
-    ACCEPT, CANCEL
+    ACCEPT, CANCEL, ERROR
 }
 
 class CheckoutEvent {
@@ -37,6 +37,7 @@ class CheckoutEvent {
             when (event) {
                 Event.ACCEPT -> return "Reepay.Event.Accept"
                 Event.CANCEL -> return "Reepay.Event.Cancel"
+                Event.ERROR -> return "Reepay.Event.Error"
             }
         }
     }
