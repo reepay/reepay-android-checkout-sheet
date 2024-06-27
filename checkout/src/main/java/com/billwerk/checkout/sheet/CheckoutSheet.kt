@@ -3,12 +3,16 @@ package com.billwerk.checkout
 import android.content.Context
 import android.content.Intent
 import android.content.res.Resources
+import android.graphics.Bitmap
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.webkit.WebResourceRequest
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.widget.ImageButton
+import android.widget.LinearLayout
+import android.widget.ProgressBar
 import androidx.core.content.ContextCompat.startActivity
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
@@ -70,17 +74,32 @@ class CheckoutSheet(private val context: Context) {
     private fun setupSheet(config: CheckoutSheetConfig) {
         val view: View = LayoutInflater.from(context).inflate(R.layout.checkout_sheet, null)
 
+        val loadingScreen = view.findViewById<LinearLayout>(R.id.rp_loadingScreen)
         val bottomSheetDialog = BottomSheetDialog(context)
 
         dismiss(bottomSheetDialog)
 
         // Configure sheet behavior
         bottomSheetDialog.apply {
+
+            loadingScreen.visibility = View.VISIBLE;
+
             setCancelable(config.dismissible)
             when (config.sheetStyle) {
-                SheetStyle.MEDIUM -> behavior.maxHeight = deviceHeight / 2
-                SheetStyle.LARGE -> behavior.maxHeight = (deviceHeight * 0.75).toInt()
-                SheetStyle.FULL_SCREEN -> behavior.maxHeight = deviceHeight
+                SheetStyle.MEDIUM -> {
+                    val height = deviceHeight / 2;
+                    behavior.maxHeight = height
+                    loadingScreen.minimumHeight = height;
+                }
+                SheetStyle.LARGE -> {
+                    val height = (deviceHeight * 0.75).toInt()
+                    behavior.maxHeight = height;
+                    loadingScreen.minimumHeight = height;
+                }
+                SheetStyle.FULL_SCREEN -> {
+                    behavior.maxHeight = deviceHeight
+                    loadingScreen.minimumHeight = deviceHeight;
+                }
             }
             behavior.peekHeight = deviceHeight
             behavior.isDraggable = false
@@ -88,6 +107,10 @@ class CheckoutSheet(private val context: Context) {
                 override fun onStateChanged(bottomSheet: View, newState: Int) {
                     if (newState == BottomSheetBehavior.STATE_HIDDEN) {
                         dismiss(bottomSheetDialog)
+                    }
+
+                    if (newState == BottomSheetBehavior.STATE_EXPANDED) {
+                        loadingScreen.visibility = View.GONE;
                     }
                 }
 
@@ -130,6 +153,18 @@ class CheckoutSheet(private val context: Context) {
             settings.javaScriptEnabled = true
             settings.safeBrowsingEnabled = true
             webViewClient = object : WebViewClient() {
+                @Override
+                override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {
+                    super.onPageStarted(view, url, favicon);
+                    webView.visibility = View.GONE;
+                }
+
+                @Override
+                override fun onPageFinished(view: WebView, url: String) {
+                    super.onPageFinished(view, url);
+                    webView.visibility = View.VISIBLE;
+                }
+
                 @Override
                 override fun shouldOverrideUrlLoading(
                     view: WebView?,

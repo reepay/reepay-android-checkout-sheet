@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="rp_loading_spinner_diameter">75dip</dimen>
+</resources>
