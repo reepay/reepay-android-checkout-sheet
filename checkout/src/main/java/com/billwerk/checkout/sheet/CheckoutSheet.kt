@@ -1,13 +1,18 @@
 package com.billwerk.checkout
 
 import android.content.Context
+import android.content.Intent
 import android.content.res.Resources
+import android.graphics.Bitmap
 import android.view.LayoutInflater
 import android.view.View
+import android.webkit.WebResourceError
 import android.webkit.WebResourceRequest
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.widget.ImageButton
+import android.widget.LinearLayout
+import androidx.core.content.ContextCompat.startActivity
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 
@@ -20,13 +25,15 @@ import com.google.android.material.bottomsheet.BottomSheetDialog
  * @property cancelURL Cancel URL of checkout session. Must be identical to cancel url defined in the checkout session to work correctly
  * @property sheetStyle Style of the checkout sheet. Sets the default height of the sheet. Default: [SheetStyle.MEDIUM].
  * @property dismissible If set to `true`, the sheet will render a close button and be dismissible by pressing outside the checkout sheet hit box.
+ * @property hideHeader If set to `true`, the sheet will be rendered without the header
  */
 data class CheckoutSheetConfig(
     val sessionId: String,
     val acceptURL: String,
     val cancelURL: String,
     val sheetStyle: SheetStyle = SheetStyle.MEDIUM,
-    val dismissible: Boolean = true
+    val dismissible: Boolean = true,
+    val hideHeader: Boolean = false
 )
 
 enum class SheetStyle {
@@ -66,6 +73,8 @@ class CheckoutSheet(private val context: Context) {
     private fun setupSheet(config: CheckoutSheetConfig) {
         val view: View = LayoutInflater.from(context).inflate(R.layout.checkout_sheet, null)
 
+        val loadingScreen = view.findViewById<LinearLayout>(R.id.rp_loadingScreen)
+        val errorScreen = view.findViewById<LinearLayout>(R.id.rp_errorScreen)
         val bottomSheetDialog = BottomSheetDialog(context)
 
         dismiss(bottomSheetDialog)
@@ -74,9 +83,25 @@ class CheckoutSheet(private val context: Context) {
         bottomSheetDialog.apply {
             setCancelable(config.dismissible)
             when (config.sheetStyle) {
-                SheetStyle.MEDIUM -> behavior.maxHeight = deviceHeight / 2
-                SheetStyle.LARGE -> behavior.maxHeight = (deviceHeight * 0.75).toInt()
-                SheetStyle.FULL_SCREEN -> behavior.maxHeight = deviceHeight
+                SheetStyle.MEDIUM -> {
+                    val height = deviceHeight / 2
+                    behavior.maxHeight = height
+                    loadingScreen.minimumHeight = height
+                    errorScreen.minimumHeight = height
+                }
+
+                SheetStyle.LARGE -> {
+                    val height = (deviceHeight * 0.75).toInt()
+                    behavior.maxHeight = height
+                    loadingScreen.minimumHeight = height
+                    errorScreen.minimumHeight = height
+                }
+
+                SheetStyle.FULL_SCREEN -> {
+                    behavior.maxHeight = deviceHeight
+                    loadingScreen.minimumHeight = deviceHeight
+                    errorScreen.minimumHeight = deviceHeight
+                }
             }
             behavior.peekHeight = deviceHeight
             behavior.isDraggable = false
@@ -84,6 +109,10 @@ class CheckoutSheet(private val context: Context) {
                 override fun onStateChanged(bottomSheet: View, newState: Int) {
                     if (newState == BottomSheetBehavior.STATE_HIDDEN) {
                         dismiss(bottomSheetDialog)
+                    }
+
+                    if (newState == BottomSheetBehavior.STATE_EXPANDED) {
+                        loadingScreen.visibility = View.GONE
                     }
                 }
 
@@ -107,7 +136,6 @@ class CheckoutSheet(private val context: Context) {
         // Display the checkout sheet and its contents
         bottomSheetDialog.setContentView(view)
         setupWebView(view, bottomSheetDialog, config)
-
         bottomSheetDialog.show()
     }
 
@@ -117,31 +145,74 @@ class CheckoutSheet(private val context: Context) {
         config: CheckoutSheetConfig
     ) {
         val webView = view.findViewById<WebView>(R.id.rp_webView)
+        val loadingScreen = view.findViewById<LinearLayout>(R.id.rp_loadingScreen)
+        val errorScreen = view.findViewById<LinearLayout>(R.id.rp_errorScreen)
+
+        loadingScreen.visibility = View.VISIBLE
 
         webView.apply {
-            loadUrl("https://checkout.reepay.com/#/${config.sessionId}")
+
+            val queryparams = if (config.hideHeader) "?hideHeader=true" else ""
+            var isPageError = false
+
+            loadUrl("https://checkout.reepay.com/#/${config.sessionId}${queryparams}")
             settings.javaScriptEnabled = true
             settings.safeBrowsingEnabled = true
             webViewClient = object : WebViewClient() {
+                @Override
+                override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {
+                    super.onPageStarted(view, url, favicon)
+                    isPageError = false
+                    webView.visibility = View.GONE
+                    errorScreen.visibility = View.GONE
+                    loadingScreen.visibility = View.VISIBLE
+                }
+
+                @Override
+                override fun onPageFinished(view: WebView, url: String) {
+                    if (isPageError) {
+                        webView.visibility = View.GONE
+                        errorScreen.visibility = View.VISIBLE
+                    } else {
+                        webView.visibility = View.VISIBLE
+                    }
+                }
+
+                @Override
+                override fun onReceivedError(
+                    view: WebView?,
+                    request: WebResourceRequest?,
+                    error: WebResourceError?
+                ) {
+                    isPageError = true
+                    emitEvent(Event.ERROR)
+                }
+
                 @Override
                 override fun shouldOverrideUrlLoading(
                     view: WebView?,
                     request: WebResourceRequest?
                 ): Boolean {
                     val url = request?.url.toString()
+
                     when {
-                        config.acceptURL != "" && url.contains(config.acceptURL) -> {
+                        url === config.acceptURL -> {
                             emitEvent(Event.ACCEPT)
                             bottomSheetDialog.behavior.maxHeight = deviceHeight
                         }
 
-                        config.acceptURL != "" && url.contains(config.cancelURL) -> {
+                        url === config.cancelURL -> {
                             emitEvent(Event.CANCEL)
                             bottomSheetDialog.behavior.maxHeight = deviceHeight
                         }
                     }
 
-                    return false
+                    if (request?.url?.scheme == "intent") {
+                        startActivity(context, Intent.parseUri(url, Intent.URI_INTENT_SCHEME), null)
+                        return true
+                    } else {
+                        return false
+                    }
                 }
             }
         }
@@ -151,7 +222,7 @@ class CheckoutSheet(private val context: Context) {
         return CheckoutEvent.emitEvent(event)
     }
 
-    private fun dismiss(bottomSheetDialog: BottomSheetDialog) {
+    fun dismiss(bottomSheetDialog: BottomSheetDialog) {
         isDialogOpen = false
         bottomSheetDialog.dismiss()
     }
