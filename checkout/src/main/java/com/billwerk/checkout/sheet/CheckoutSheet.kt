@@ -13,6 +13,7 @@ import android.webkit.WebViewClient
 import android.widget.ImageButton
 import android.widget.LinearLayout
 import androidx.core.content.ContextCompat.startActivity
+import com.billwerk.checkout.sheet.SDKEventMessage
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 
@@ -107,6 +108,7 @@ class CheckoutSheet(private val context: Context) {
             behavior.isDraggable = false
             behavior.addBottomSheetCallback(object : BottomSheetBehavior.BottomSheetCallback() {
                 override fun onStateChanged(bottomSheet: View, newState: Int) {
+
                     if (newState == BottomSheetBehavior.STATE_HIDDEN) {
                         dismiss(bottomSheetDialog)
                     }
@@ -145,6 +147,7 @@ class CheckoutSheet(private val context: Context) {
         config: CheckoutSheetConfig
     ) {
         val webView = view.findViewById<WebView>(R.id.rp_webView)
+        webView.addJavascriptInterface(CheckoutEvent, "AndroidWebViewListener")
         val loadingScreen = view.findViewById<LinearLayout>(R.id.rp_loadingScreen)
         val errorScreen = view.findViewById<LinearLayout>(R.id.rp_errorScreen)
 
@@ -185,7 +188,6 @@ class CheckoutSheet(private val context: Context) {
                     error: WebResourceError?
                 ) {
                     isPageError = true
-                    emitEvent(Event.ERROR)
                 }
 
                 @Override
@@ -194,18 +196,6 @@ class CheckoutSheet(private val context: Context) {
                     request: WebResourceRequest?
                 ): Boolean {
                     val url = request?.url.toString()
-
-                    when {
-                        url === config.acceptURL -> {
-                            emitEvent(Event.ACCEPT)
-                            bottomSheetDialog.behavior.maxHeight = deviceHeight
-                        }
-
-                        url === config.cancelURL -> {
-                            emitEvent(Event.CANCEL)
-                            bottomSheetDialog.behavior.maxHeight = deviceHeight
-                        }
-                    }
 
                     if (request?.url?.scheme == "intent") {
                         startActivity(context, Intent.parseUri(url, Intent.URI_INTENT_SCHEME), null)
@@ -216,10 +206,6 @@ class CheckoutSheet(private val context: Context) {
                 }
             }
         }
-    }
-
-    private fun emitEvent(event: Event) {
-        return CheckoutEvent.emitEvent(event)
     }
 
     fun dismiss(bottomSheetDialog: BottomSheetDialog) {
