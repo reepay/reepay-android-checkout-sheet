@@ -2,6 +2,7 @@ package com.billwerk.checkout
 
 import android.webkit.JavascriptInterface
 import com.billwerk.checkout.sheet.SDKEventMessage
+import com.billwerk.checkout.sheet.SDKEventType
 import com.google.gson.Gson
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -10,7 +11,7 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 
-class CheckoutEvent {
+class CheckoutEventPublisher {
     private object CheckoutEventBus {
         private val _events = MutableSharedFlow<SDKEventMessage>()
         val events = _events.asSharedFlow()
@@ -29,10 +30,20 @@ class CheckoutEvent {
         @JavascriptInterface
         fun postMessage(jsonMessage: String) {
             var sdkEventMessage: SDKEventMessage = Gson().fromJson(jsonMessage, SDKEventMessage::class.java)
+            emitEvent(sdkEventMessage)
+        }
+
+        fun postSimpleEvent(event: SDKEventType) {
+            emitEvent(SDKEventMessage(event.toString(), null, null))
+        }
+
+        private fun emitEvent(message: SDKEventMessage) {
             CoroutineScope(Dispatchers.Main).launch {
-                CheckoutEventBus.emitEvent(sdkEventMessage)
+                CheckoutEventBus.emitEvent(message)
             }
         }
+
+        // TODO: add reply method, so checkout web can register it's a webview
 
     }
 }

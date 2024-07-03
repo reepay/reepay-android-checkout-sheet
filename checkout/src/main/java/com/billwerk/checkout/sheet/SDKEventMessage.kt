@@ -8,6 +8,15 @@ enum class SessionState {
     SESSION_EXPIRED
 }
 
+enum class SDKEventType {
+    Accept,
+    Error,
+    Cancel,
+    Close,
+    Open,
+    Init,
+}
+
 class SDKMessage(
     val id: String,
     val invoice: String,
