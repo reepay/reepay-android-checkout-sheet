@@ -1,7 +1,6 @@
 package com.billwerk.checkout
 
 import android.content.Context
-import android.content.Intent
 import android.content.res.Resources
 import android.graphics.Bitmap
 import android.view.LayoutInflater
@@ -12,7 +11,6 @@ import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.widget.ImageButton
 import android.widget.LinearLayout
-import androidx.core.content.ContextCompat.startActivity
 import com.billwerk.checkout.sheet.SDKEventType
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
@@ -197,21 +195,6 @@ class CheckoutSheet(private val context: Context) {
                     error: WebResourceError?
                 ) {
                     isPageError = true
-                }
-
-                @Override
-                override fun shouldOverrideUrlLoading(
-                    view: WebView?,
-                    request: WebResourceRequest?
-                ): Boolean {
-                    val url = request?.url.toString()
-
-                    if (request?.url?.scheme == "intent") {
-                        startActivity(context, Intent.parseUri(url, Intent.URI_INTENT_SCHEME), null)
-                        return true
-                    } else {
-                        return false
-                    }
                 }
             }
         }
