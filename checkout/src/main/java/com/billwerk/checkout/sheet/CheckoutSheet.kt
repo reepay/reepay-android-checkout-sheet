@@ -1,7 +1,6 @@
 package com.billwerk.checkout
 
 import android.content.Context
-import android.content.Intent
 import android.content.res.Resources
 import android.graphics.Bitmap
 import android.view.LayoutInflater
@@ -12,7 +11,7 @@ import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.widget.ImageButton
 import android.widget.LinearLayout
-import androidx.core.content.ContextCompat.startActivity
+import com.billwerk.checkout.sheet.SDKEventType
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 
@@ -68,6 +67,16 @@ class CheckoutSheet(private val context: Context) {
         isDialogOpen = true
 
         setupSheet(config)
+        CheckoutEventPublisher.postSimpleEvent(SDKEventType.Open)
+    }
+
+    /**
+     * Dismisses the checkout sheet dialog
+     * @param bottomSheetDialog The bottom sheet dialog to close
+     */
+    fun dismiss(bottomSheetDialog: BottomSheetDialog) {
+        isDialogOpen = false
+        bottomSheetDialog.dismiss()
     }
 
     private fun setupSheet(config: CheckoutSheetConfig) {
@@ -120,6 +129,7 @@ class CheckoutSheet(private val context: Context) {
                     return
                 }
             })
+            bottomSheetDialog.setOnDismissListener { CheckoutEventPublisher.postSimpleEvent(SDKEventType.Close) }
         }
 
         if (config.dismissible) {
@@ -135,16 +145,16 @@ class CheckoutSheet(private val context: Context) {
 
         // Display the checkout sheet and its contents
         bottomSheetDialog.setContentView(view)
-        setupWebView(view, bottomSheetDialog, config)
+        setupWebView(view, config)
         bottomSheetDialog.show()
     }
 
     private fun setupWebView(
         view: View,
-        bottomSheetDialog: BottomSheetDialog,
         config: CheckoutSheetConfig
     ) {
         val webView = view.findViewById<WebView>(R.id.rp_webView)
+        webView.addJavascriptInterface(CheckoutEventPublisher, "AndroidWebViewListener")
         val loadingScreen = view.findViewById<LinearLayout>(R.id.rp_loadingScreen)
         val errorScreen = view.findViewById<LinearLayout>(R.id.rp_errorScreen)
 
@@ -185,46 +195,9 @@ class CheckoutSheet(private val context: Context) {
                     error: WebResourceError?
                 ) {
                     isPageError = true
-                    emitEvent(Event.ERROR)
-                }
-
-                @Override
-                override fun shouldOverrideUrlLoading(
-                    view: WebView?,
-                    request: WebResourceRequest?
-                ): Boolean {
-                    val url = request?.url.toString()
-
-                    when {
-                        url === config.acceptURL -> {
-                            emitEvent(Event.ACCEPT)
-                            bottomSheetDialog.behavior.maxHeight = deviceHeight
-                        }
-
-                        url === config.cancelURL -> {
-                            emitEvent(Event.CANCEL)
-                            bottomSheetDialog.behavior.maxHeight = deviceHeight
-                        }
-                    }
-
-                    if (request?.url?.scheme == "intent") {
-                        startActivity(context, Intent.parseUri(url, Intent.URI_INTENT_SCHEME), null)
-                        return true
-                    } else {
-                        return false
-                    }
                 }
             }
         }
-    }
-
-    private fun emitEvent(event: Event) {
-        return CheckoutEvent.emitEvent(event)
-    }
-
-    fun dismiss(bottomSheetDialog: BottomSheetDialog) {
-        isDialogOpen = false
-        bottomSheetDialog.dismiss()
     }
 }
 
