@@ -29,12 +29,12 @@ class CheckoutEventPublisher {
         /** Emits the checkout session event */
         @JavascriptInterface
         fun postMessage(jsonMessage: String) {
-            var sdkEventMessage: SDKEventMessage = Gson().fromJson(jsonMessage, SDKEventMessage::class.java)
+            val sdkEventMessage: SDKEventMessage = Gson().fromJson(jsonMessage, SDKEventMessage::class.java)
             emitEvent(sdkEventMessage)
         }
 
         fun postSimpleEvent(event: SDKEventType) {
-            emitEvent(SDKEventMessage(event.toString(), null, null))
+            emitEvent(SDKEventMessage(event, null, null))
         }
 
         private fun emitEvent(message: SDKEventMessage) {
