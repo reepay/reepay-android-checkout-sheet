@@ -33,6 +33,6 @@ class SDKMessage(
 )
 
 /// Based on ISDKEventMessage from Checkout Web
-class SDKEventMessage(val event: String, val sessionState: String?, val data: SDKMessage?) {
+class SDKEventMessage(val event: SDKEventType, val sessionState: String?, val data: SDKMessage?) {
 
 }
