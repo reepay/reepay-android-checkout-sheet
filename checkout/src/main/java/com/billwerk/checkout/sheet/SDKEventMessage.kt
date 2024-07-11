@@ -19,6 +19,10 @@ enum class SDKEventType {
     Init,
 }
 
+enum class SDKUserEventType {
+    card_input_change,
+}
+
 // Based on ISDKEventReply from Checkout Web
 class EventReply(val isWebView: Boolean?, val isWebViewChanged: Boolean?, val userAgent: String?) {}
 
@@ -33,6 +37,6 @@ class SDKMessage(
 )
 
 /// Based on ISDKEventMessage from Checkout Web
-class SDKEventMessage(val event: SDKEventType, val sessionState: String?, val data: SDKMessage?) {
+class SDKEventMessage(val event: SDKEventType, val sessionState: String?, val data: SDKMessage?) {}
 
-}
+class SDKUserEventMessage(val event: SDKUserEventType) {}
