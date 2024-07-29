@@ -1,7 +1,7 @@
 package com.billwerk.checkout
 
-import android.util.Log
 import android.webkit.JavascriptInterface
+import androidx.annotation.Keep
 import com.billwerk.checkout.sheet.SDKEventMessage
 import com.billwerk.checkout.sheet.SDKEventType
 import com.billwerk.checkout.sheet.SDKUserEventMessage
@@ -29,6 +29,7 @@ class CheckoutEventPublisher {
         }
     }
 
+    @Keep
     companion object {
 
         /** Broadcasts the events emitted from the Reepay checkout session  */
@@ -64,8 +65,5 @@ class CheckoutEventPublisher {
                 CheckoutEventBus.emitUserEvent(message)
             }
         }
-
-        // TODO: add reply method, so checkout web can register it's a webview
-
     }
 }
