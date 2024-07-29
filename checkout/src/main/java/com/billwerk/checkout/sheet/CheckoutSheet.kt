@@ -49,6 +49,8 @@ class CheckoutSheet(private val context: Context) {
     private val deviceHeight = Resources.getSystem().displayMetrics.heightPixels
     private var isDialogOpen = false
 
+    private var bottomSheetDialog: BottomSheetDialog? = null
+
     /**
      * Opens the checkout sheet based on the provided configuration
      *
@@ -74,9 +76,9 @@ class CheckoutSheet(private val context: Context) {
      * Dismisses the checkout sheet dialog
      * @param bottomSheetDialog The bottom sheet dialog to close
      */
-    fun dismiss(bottomSheetDialog: BottomSheetDialog) {
+    fun dismiss() {
         isDialogOpen = false
-        bottomSheetDialog.dismiss()
+        this.bottomSheetDialog?.dismiss()
     }
 
     private fun setupSheet(config: CheckoutSheetConfig) {
@@ -85,8 +87,9 @@ class CheckoutSheet(private val context: Context) {
         val loadingScreen = view.findViewById<LinearLayout>(R.id.rp_loadingScreen)
         val errorScreen = view.findViewById<LinearLayout>(R.id.rp_errorScreen)
         val bottomSheetDialog = BottomSheetDialog(context)
+        this.bottomSheetDialog = bottomSheetDialog
 
-        dismiss(bottomSheetDialog)
+        dismiss()
 
         // Configure sheet behavior
         bottomSheetDialog.apply {
@@ -117,7 +120,7 @@ class CheckoutSheet(private val context: Context) {
             behavior.addBottomSheetCallback(object : BottomSheetBehavior.BottomSheetCallback() {
                 override fun onStateChanged(bottomSheet: View, newState: Int) {
                     if (newState == BottomSheetBehavior.STATE_HIDDEN) {
-                        dismiss(bottomSheetDialog)
+                        dismiss()
                     }
 
                     if (newState == BottomSheetBehavior.STATE_EXPANDED) {
@@ -138,7 +141,7 @@ class CheckoutSheet(private val context: Context) {
             closeBtn.apply {
                 visibility = View.VISIBLE
                 setOnClickListener {
-                    dismiss(bottomSheetDialog)
+                    dismiss()
                 }
             }
         }
