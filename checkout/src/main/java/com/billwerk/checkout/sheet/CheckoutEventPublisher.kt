@@ -1,6 +1,7 @@
 package com.billwerk.checkout
 
 import android.webkit.JavascriptInterface
+import androidx.annotation.Keep
 import com.billwerk.checkout.sheet.SDKEventMessage
 import com.billwerk.checkout.sheet.SDKEventType
 import com.google.gson.Gson
@@ -21,6 +22,7 @@ class CheckoutEventPublisher {
         }
     }
 
+    @Keep
     companion object {
 
         /** Broadcasts the events emitted from the Reepay checkout session  */
@@ -29,7 +31,8 @@ class CheckoutEventPublisher {
         /** Emits the checkout session event */
         @JavascriptInterface
         fun postMessage(jsonMessage: String) {
-            var sdkEventMessage: SDKEventMessage = Gson().fromJson(jsonMessage, SDKEventMessage::class.java)
+            var sdkEventMessage: SDKEventMessage =
+                Gson().fromJson(jsonMessage, SDKEventMessage::class.java)
             emitEvent(sdkEventMessage)
         }
 
@@ -42,8 +45,5 @@ class CheckoutEventPublisher {
                 CheckoutEventBus.emitEvent(message)
             }
         }
-
-        // TODO: add reply method, so checkout web can register it's a webview
-
     }
 }

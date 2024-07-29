@@ -11,6 +11,13 @@
 #-keepclassmembers class fqcn.of.javascript.interface.for.webview {
 #   public *;
 #}
+-keepattributes JavascriptInterface
+-keepclassmembers class * {
+    @android.webkit.JavascriptInterface <methods>;
+}
+-keepclassmembers class com.billwerk.checkout.CheckoutEventPublisher$Companion {
+    public *;
+}
 
 # Uncomment this to preserve the line number information for
 # debugging stack traces.
