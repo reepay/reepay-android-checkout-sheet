@@ -26,8 +26,8 @@ import com.google.android.material.bottomsheet.BottomSheetDialog
  * @property sheetStyle Style of the checkout sheet. Sets the default height of the sheet. Default: [SheetStyle.MEDIUM].
  * @property dismissible If set to `true`, the sheet will render a close button and be dismissible by pressing outside the checkout sheet hit box.
  * @property hideHeader If set to `true`, the sheet will be rendered without the header
- * @property closeButtonIcon Overrides the default icon for the close button. Argument is the id of the string. Image must be square
- * @property closeButtonText Text shown next to the close button. Argument is the id of the string
+ * @property closeButtonIcon (Optional) Overrides the default icon for the close button. Argument is the id of the string. Image must be square
+ * @property closeButtonText (Optional) Text shown next to the close button. Argument is the id of the string
  */
 data class CheckoutSheetConfig(
     val sessionId: String,
@@ -36,8 +36,8 @@ data class CheckoutSheetConfig(
     val sheetStyle: SheetStyle = SheetStyle.MEDIUM,
     val dismissible: Boolean = true,
     val hideHeader: Boolean = false,
-    var closeButtonIcon: Int = R.drawable.billwerk_close_icon,
-    var closeButtonText: Int
+    var closeButtonIcon: Int? = null,
+    var closeButtonText: Int? = null
 )
 
 enum class SheetStyle {
@@ -145,20 +145,20 @@ class CheckoutSheet(private val context: Context) {
             }
         }
 
-        if (config.closeButtonIcon != R.drawable.billwerk_close_icon) {
-            val closeButtonIcon = view.findViewById<ImageButton>(R.id.rp_button_close)
-            closeButtonIcon.setImageResource(config.closeButtonIcon)
-        }
-
-        if (config.closeButtonText != 0) {
+        if (config.closeButtonText != null) {
             val closeButtonText = view.findViewById<TextView>(R.id.rp_button_close_text)
             closeButtonText.visibility = View.VISIBLE
-            closeButtonText.setText(config.closeButtonText)
+            closeButtonText.setText(config.closeButtonText!!)
         }
 
         if (config.dismissible) {
             // Attach close button
             val closeBtn = view.findViewById<ImageButton>(R.id.rp_button_close)
+
+            if (config.closeButtonIcon != null) {
+                closeBtn.setImageResource(config.closeButtonIcon!!)
+            }
+
             closeBtn.apply {
                 visibility = View.VISIBLE
                 setOnClickListener {
