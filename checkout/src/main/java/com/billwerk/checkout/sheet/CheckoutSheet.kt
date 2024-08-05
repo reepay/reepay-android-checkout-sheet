@@ -11,6 +11,7 @@ import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.widget.ImageButton
 import android.widget.LinearLayout
+import android.widget.TextView
 import com.billwerk.checkout.sheet.SDKEventType
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
@@ -25,7 +26,8 @@ import com.google.android.material.bottomsheet.BottomSheetDialog
  * @property sheetStyle Style of the checkout sheet. Sets the default height of the sheet. Default: [SheetStyle.MEDIUM].
  * @property dismissible If set to `true`, the sheet will render a close button and be dismissible by pressing outside the checkout sheet hit box.
  * @property hideHeader If set to `true`, the sheet will be rendered without the header
- * @property closeButtonIcon Overrides the default icon for the close button. Must be square
+ * @property closeButtonIcon Overrides the default icon for the close button. Argument is the id of the string. Image must be square
+ * @property closeButtonText Text shown next to the close button. Argument is the id of the string
  */
 data class CheckoutSheetConfig(
     val sessionId: String,
@@ -34,7 +36,8 @@ data class CheckoutSheetConfig(
     val sheetStyle: SheetStyle = SheetStyle.MEDIUM,
     val dismissible: Boolean = true,
     val hideHeader: Boolean = false,
-    var closeButtonIcon: Int = R.drawable.billwerk_close_icon
+    var closeButtonIcon: Int = R.drawable.billwerk_close_icon,
+    var closeButtonText: Int
 )
 
 enum class SheetStyle {
@@ -94,8 +97,6 @@ class CheckoutSheet(private val context: Context) {
 
         dismiss()
 
-        val closeButtonIcon = view.findViewById<ImageButton>(R.id.rp_button_close)
-
         // Configure sheet behavior
         bottomSheetDialog.apply {
             setCancelable(config.dismissible)
@@ -137,11 +138,22 @@ class CheckoutSheet(private val context: Context) {
                     return
                 }
             })
-            bottomSheetDialog.setOnDismissListener { CheckoutEventPublisher.postSimpleEvent(SDKEventType.Close) }
+            bottomSheetDialog.setOnDismissListener {
+                CheckoutEventPublisher.postSimpleEvent(
+                    SDKEventType.Close
+                )
+            }
         }
 
         if (config.closeButtonIcon != R.drawable.billwerk_close_icon) {
-          closeButtonIcon.setImageResource(config.closeButtonIcon)
+            val closeButtonIcon = view.findViewById<ImageButton>(R.id.rp_button_close)
+            closeButtonIcon.setImageResource(config.closeButtonIcon)
+        }
+
+        if (config.closeButtonText != 0) {
+            val closeButtonText = view.findViewById<TextView>(R.id.rp_button_close_text)
+            closeButtonText.visibility = View.VISIBLE
+            closeButtonText.setText(config.closeButtonText)
         }
 
         if (config.dismissible) {
