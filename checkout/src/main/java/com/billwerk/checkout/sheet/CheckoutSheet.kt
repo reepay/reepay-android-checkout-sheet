@@ -25,6 +25,7 @@ import com.google.android.material.bottomsheet.BottomSheetDialog
  * @property sheetStyle Style of the checkout sheet. Sets the default height of the sheet. Default: [SheetStyle.MEDIUM].
  * @property dismissible If set to `true`, the sheet will render a close button and be dismissible by pressing outside the checkout sheet hit box.
  * @property hideHeader If set to `true`, the sheet will be rendered without the header
+ * @property closeButtonIcon Overrides the default icon for the close button. Must be square
  */
 data class CheckoutSheetConfig(
     val sessionId: String,
@@ -32,7 +33,8 @@ data class CheckoutSheetConfig(
     val cancelURL: String,
     val sheetStyle: SheetStyle = SheetStyle.MEDIUM,
     val dismissible: Boolean = true,
-    val hideHeader: Boolean = false
+    val hideHeader: Boolean = false,
+    var closeButtonIcon: Int = R.drawable.billwerk_close_icon
 )
 
 enum class SheetStyle {
@@ -87,9 +89,12 @@ class CheckoutSheet(private val context: Context) {
         val loadingScreen = view.findViewById<LinearLayout>(R.id.rp_loadingScreen)
         val errorScreen = view.findViewById<LinearLayout>(R.id.rp_errorScreen)
         val bottomSheetDialog = BottomSheetDialog(context)
+
         this.bottomSheetDialog = bottomSheetDialog
 
         dismiss()
+
+        val closeButtonIcon = view.findViewById<ImageButton>(R.id.rp_button_close)
 
         // Configure sheet behavior
         bottomSheetDialog.apply {
@@ -133,6 +138,10 @@ class CheckoutSheet(private val context: Context) {
                 }
             })
             bottomSheetDialog.setOnDismissListener { CheckoutEventPublisher.postSimpleEvent(SDKEventType.Close) }
+        }
+
+        if (config.closeButtonIcon != R.drawable.billwerk_close_icon) {
+          closeButtonIcon.setImageResource(config.closeButtonIcon)
         }
 
         if (config.dismissible) {

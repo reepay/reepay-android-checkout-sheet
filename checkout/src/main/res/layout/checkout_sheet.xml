@@ -7,6 +7,7 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginRight="6dp"
         android:gravity="right"
         >
             <TextView
@@ -15,13 +16,14 @@
                 android:layout_height="wrap_content"
                 android:layout_centerInParent="true"
                 android:text="@string/rp_close_button_text"
+                android:visibility="gone"
                 >
-
             </TextView>
             <ImageButton
                 android:id="@+id/rp_button_close"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_width="42dp"
+                android:layout_height="42dp"
+                android:scaleType="fitCenter"
                 android:layout_toRightOf="@+id/rp_button_close_text"
                 android:padding="10dp"
                 android:src="@drawable/billwerk_close_icon"
