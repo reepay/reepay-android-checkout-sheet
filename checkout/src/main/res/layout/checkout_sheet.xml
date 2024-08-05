@@ -1,69 +1,76 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:overScrollMode="never">
-
-    <ScrollView
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:overScrollMode="never">
-
-        <FrameLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
-
-            <LinearLayout
-                android:id="@+id/rp_loadingScreen"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="@color/cardview_light_background"
-                android:gravity="center"
-                android:visibility="gone">
-
-                <ProgressBar
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:minWidth="@dimen/rp_loading_spinner_diameter"
-                    android:minHeight="@dimen/rp_loading_spinner_diameter" />
-            </LinearLayout>
-
-            <WebView
-                android:id="@+id/rp_webView"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:overScrollMode="always" />
-
-            <LinearLayout
-                android:id="@+id/rp_errorScreen"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_gravity="center"
-                android:visibility="gone"
-                android:background="@color/cardview_light_background">
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:gravity="center"
-                    android:paddingHorizontal="10dip"
-                    android:text="@string/rp_loading_error_message"
-                    android:textAlignment="center"
-                    android:textColor="@color/design_default_color_error" />
-            </LinearLayout>
-        </FrameLayout>
-    </ScrollView>
-
-    <ImageButton
-        android:id="@+id/button_close"
-        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="top|start"
-        android:padding="10dp"
-        android:src="@drawable/billwerk_close_icon"
-        android:contentDescription="@string/close_button"
-        android:background="#00ffffff"
-        android:visibility="gone" />
-</FrameLayout>
+        android:gravity="right"
+        >
+            <TextView
+                android:id="@+id/rp_button_close_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:text="@string/rp_close_button_text"
+                >
+
+            </TextView>
+            <ImageButton
+                android:id="@+id/rp_button_close"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_toRightOf="@+id/rp_button_close_text"
+                android:padding="10dp"
+                android:src="@drawable/billwerk_close_icon"
+                android:contentDescription="@string/rp_close_button_description"
+                android:background="#00ffffff"
+                android:visibility="gone" />
+    </RelativeLayout>
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <LinearLayout
+            android:id="@+id/rp_loadingScreen"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/cardview_light_background"
+            android:gravity="center"
+            android:visibility="gone">
+
+            <ProgressBar
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:minWidth="@dimen/rp_loading_spinner_diameter"
+                android:minHeight="@dimen/rp_loading_spinner_diameter" />
+        </LinearLayout>
+
+        <WebView
+            android:id="@+id/rp_webView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:overScrollMode="always" />
+
+        <LinearLayout
+            android:id="@+id/rp_errorScreen"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="center"
+            android:visibility="gone"
+            android:background="@color/cardview_light_background">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:paddingHorizontal="10dip"
+                android:text="@string/rp_loading_error_message"
+                android:textAlignment="center"
+                android:textColor="@color/design_default_color_error" />
+        </LinearLayout>
+    </FrameLayout>
+</LinearLayout>

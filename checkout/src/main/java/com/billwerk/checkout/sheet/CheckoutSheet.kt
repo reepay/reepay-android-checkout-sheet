@@ -137,7 +137,7 @@ class CheckoutSheet(private val context: Context) {
 
         if (config.dismissible) {
             // Attach close button
-            val closeBtn = view.findViewById<ImageButton>(R.id.button_close)
+            val closeBtn = view.findViewById<ImageButton>(R.id.rp_button_close)
             closeBtn.apply {
                 visibility = View.VISIBLE
                 setOnClickListener {
