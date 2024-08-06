@@ -21,8 +21,6 @@ import com.google.android.material.bottomsheet.BottomSheetDialog
  * Configuration class for checkout sheet.
  *
  * @property sessionId Billwerk+ checkout session id
- * @property acceptURL Accept URL of checkout session. Must be identical to accept url defined in the checkout session to work correctly
- * @property cancelURL Cancel URL of checkout session. Must be identical to cancel url defined in the checkout session to work correctly
  * @property sheetStyle Style of the checkout sheet. Sets the default height of the sheet. Default: [SheetStyle.MEDIUM].
  * @property dismissible If set to `true`, the sheet will render a close button and be dismissible by pressing outside the checkout sheet hit box.
  * @property hideHeader If set to `true`, the sheet will be rendered without the header
@@ -31,8 +29,6 @@ import com.google.android.material.bottomsheet.BottomSheetDialog
  */
 data class CheckoutSheetConfig(
     val sessionId: String,
-    val acceptURL: String,
-    val cancelURL: String,
     val sheetStyle: SheetStyle = SheetStyle.MEDIUM,
     val dismissible: Boolean = true,
     val hideHeader: Boolean = false,
