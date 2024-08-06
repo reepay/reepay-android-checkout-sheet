@@ -11,6 +11,7 @@ import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.widget.ImageButton
 import android.widget.LinearLayout
+import android.widget.TextView
 import com.billwerk.checkout.sheet.SDKEventType
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
@@ -20,19 +21,19 @@ import com.google.android.material.bottomsheet.BottomSheetDialog
  * Configuration class for checkout sheet.
  *
  * @property sessionId Billwerk+ checkout session id
- * @property acceptURL Accept URL of checkout session. Must be identical to accept url defined in the checkout session to work correctly
- * @property cancelURL Cancel URL of checkout session. Must be identical to cancel url defined in the checkout session to work correctly
  * @property sheetStyle Style of the checkout sheet. Sets the default height of the sheet. Default: [SheetStyle.MEDIUM].
  * @property dismissible If set to `true`, the sheet will render a close button and be dismissible by pressing outside the checkout sheet hit box.
  * @property hideHeader If set to `true`, the sheet will be rendered without the header
+ * @property closeButtonIcon (Optional) Overrides the default icon for the close button. Argument is the id of the string. Image must be square
+ * @property closeButtonText (Optional) Text shown next to the close button. Argument is the id of the string
  */
 data class CheckoutSheetConfig(
     val sessionId: String,
-    val acceptURL: String,
-    val cancelURL: String,
     val sheetStyle: SheetStyle = SheetStyle.MEDIUM,
     val dismissible: Boolean = true,
-    val hideHeader: Boolean = false
+    val hideHeader: Boolean = false,
+    var closeButtonIcon: Int? = null,
+    var closeButtonText: Int? = null
 )
 
 enum class SheetStyle {
@@ -87,6 +88,7 @@ class CheckoutSheet(private val context: Context) {
         val loadingScreen = view.findViewById<LinearLayout>(R.id.rp_loadingScreen)
         val errorScreen = view.findViewById<LinearLayout>(R.id.rp_errorScreen)
         val bottomSheetDialog = BottomSheetDialog(context)
+
         this.bottomSheetDialog = bottomSheetDialog
 
         dismiss()
@@ -132,12 +134,27 @@ class CheckoutSheet(private val context: Context) {
                     return
                 }
             })
-            bottomSheetDialog.setOnDismissListener { CheckoutEventPublisher.postSimpleEvent(SDKEventType.Close) }
+            bottomSheetDialog.setOnDismissListener {
+                CheckoutEventPublisher.postSimpleEvent(
+                    SDKEventType.Close
+                )
+            }
+        }
+
+        if (config.closeButtonText != null) {
+            val closeButtonText = view.findViewById<TextView>(R.id.rp_button_close_text)
+            closeButtonText.visibility = View.VISIBLE
+            closeButtonText.setText(config.closeButtonText!!)
         }
 
         if (config.dismissible) {
             // Attach close button
-            val closeBtn = view.findViewById<ImageButton>(R.id.button_close)
+            val closeBtn = view.findViewById<ImageButton>(R.id.rp_button_close)
+
+            if (config.closeButtonIcon != null) {
+                closeBtn.setImageResource(config.closeButtonIcon!!)
+            }
+
             closeBtn.apply {
                 visibility = View.VISIBLE
                 setOnClickListener {
