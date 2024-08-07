@@ -1,7 +1,3 @@
-⚠️ This SDK is under development and not yet officially supported.
-
----
-
 # ReepayCheckoutSheet Android SDK Module
 
 CheckoutSheet is a prebuilt UI that contains the steps to pay in Reepay Checkout window - collecting payment details and confirming the payment. The checkout is placed into a sheet or a fullscreen cover that displays on top of your app's UI.
@@ -33,7 +29,7 @@ The ReepayCheckoutSheet module is compatible with apps targeting Android 8.0 (AP
 
 ### Install from Jitpack
 
-Official documentation and instructions can be found [here](https://docs.jitpack.io/private/)
+Link to Jitpack repository can be found [here](https://jitpack.io/#reepay/reepay-android-checkout-sheet)
 
 **Step 1.**
 Add Jitpack to root `settings.gradle` file
