@@ -29,7 +29,7 @@ The ReepayCheckoutSheet module is compatible with apps targeting Android 8.0 (AP
 
 ### Install from Jitpack
 
-Official documentation and instructions can be found [here](https://docs.jitpack.io/private/)
+Link to Jitpack repository can be found [here](https://jitpack.io/#reepay/reepay-android-checkout-sheet)
 
 **Step 1.**
 Add Jitpack to root `settings.gradle` file
