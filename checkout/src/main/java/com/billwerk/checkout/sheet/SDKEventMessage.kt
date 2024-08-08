@@ -1,5 +1,7 @@
 package com.billwerk.checkout.sheet
 
+import androidx.annotation.Keep
+
 // Based on ESessionState from Checkout Web
 enum class SessionState {
     PAYMENT_METHOD_ALREADY_ADDED,
@@ -24,9 +26,11 @@ enum class SDKUserEventType {
 }
 
 // Based on ISDKEventReply from Checkout Web
-class EventReply(val isWebView: Boolean?, val isWebViewChanged: Boolean?, val userAgent: String?) {}
+@Keep
+class EventReply(val isWebView: Boolean?, val isWebViewChanged: Boolean?, val userAgent: String?)
 
 // Based on SDKMessage from Checkout Web
+@Keep
 class SDKMessage(
     val id: String,
     val invoice: String,
@@ -37,6 +41,8 @@ class SDKMessage(
 )
 
 /// Based on ISDKEventMessage from Checkout Web
-class SDKEventMessage(val event: SDKEventType, val sessionState: String?, val data: SDKMessage?) {}
+@Keep
+class SDKEventMessage(val event: SDKEventType, val sessionState: String?, val data: SDKMessage?)
 
-class SDKUserEventMessage(val event: SDKUserEventType) {}
+@Keep
+class SDKUserEventMessage(val event: SDKUserEventType)
