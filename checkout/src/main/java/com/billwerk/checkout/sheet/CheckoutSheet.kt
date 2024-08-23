@@ -150,23 +150,29 @@ class CheckoutSheet(private val context: Context) {
         if (config.dismissible) {
             // Attach close button
             val closeBtn = view.findViewById<ImageButton>(R.id.rp_button_close)
+            val closeBtnText = view.findViewById<TextView>(R.id.rp_button_close_text)
 
             if (config.closeButtonIcon != null) {
                 closeBtn.setImageResource(config.closeButtonIcon!!)
             }
 
-            closeBtn.apply {
-                visibility = View.VISIBLE
-                setOnClickListener {
-                    dismiss()
-                }
-            }
+            attachClickListener(closeBtn)
+            attachClickListener(closeBtnText)
         }
 
         // Display the checkout sheet and its contents
         bottomSheetDialog.setContentView(view)
         setupWebView(view, config)
         bottomSheetDialog.show()
+    }
+
+    private fun attachClickListener(view: View) {
+        view.apply {
+            visibility = View.VISIBLE
+            setOnClickListener {
+                dismiss()
+            }
+        }
     }
 
     private fun setupWebView(
