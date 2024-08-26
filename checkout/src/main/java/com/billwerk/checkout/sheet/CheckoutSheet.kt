@@ -209,16 +209,32 @@ class CheckoutSheet(private val context: Context) {
                     loadingScreen.visibility = View.VISIBLE
                 }
 
+                @Deprecated("Deprecated in API level 24")
                 @Override
-                override fun shouldOverrideUrlLoading(view: WebView?, url: String?): Boolean {
-                    if (url !== null && url.startsWith(DOMAIN)) {
+                override fun shouldOverrideUrlLoading(view: WebView, url: String): Boolean {
+                    if (url.startsWith(DOMAIN)) {
                         return false
                     }
 
                     val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
-                    view!!.context.startActivity(intent)
+                    view.context.startActivity(intent)
                     return true
                 }
+
+                @Override
+                override fun shouldOverrideUrlLoading(
+                    view: WebView,
+                    request: WebResourceRequest
+                ): Boolean {
+                    if (request.url.toString().startsWith(DOMAIN)) {
+                        return false
+                    }
+
+                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+                    view.context.startActivity(intent)
+                    return true
+                }
+
 
                 @Override
                 override fun onPageFinished(view: WebView, url: String) {
