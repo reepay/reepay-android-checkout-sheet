@@ -5,6 +5,7 @@ import android.content.Intent
 import android.content.res.Resources
 import android.graphics.Bitmap
 import android.net.Uri
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.webkit.WebResourceError
@@ -212,13 +213,7 @@ class CheckoutSheet(private val context: Context) {
                 @Deprecated("Deprecated in API level 24")
                 @Override
                 override fun shouldOverrideUrlLoading(view: WebView, url: String): Boolean {
-                    if (url.startsWith(DOMAIN)) {
-                        return false
-                    }
-
-                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
-                    view.context.startActivity(intent)
-                    return true
+                    return handleUrlOverrideLoading(view, url)
                 }
 
                 @Override
@@ -226,13 +221,7 @@ class CheckoutSheet(private val context: Context) {
                     view: WebView,
                     request: WebResourceRequest
                 ): Boolean {
-                    if (request.url.toString().startsWith(DOMAIN)) {
-                        return false
-                    }
-
-                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
-                    view.context.startActivity(intent)
-                    return true
+                    return handleUrlOverrideLoading(view, request.url.toString())
                 }
 
 
@@ -257,6 +246,28 @@ class CheckoutSheet(private val context: Context) {
                 }
             }
         }
+
+    }
+
+    private fun handleUrlOverrideLoading(view: WebView, url: String): Boolean {
+
+        if (url.startsWith(DOMAIN)) {
+            return false
+        }
+
+        if (url.startsWith("https://pay-mt.mobilepay.dk/")) {
+            view.loadUrl(url)
+            return false
+        }
+
+        if (url.startsWith("vippsmt://")) {
+            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+            view.context.startActivity(intent)
+            return true
+        }
+
+
+        return false
     }
 }
 
