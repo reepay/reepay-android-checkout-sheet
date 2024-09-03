@@ -15,6 +15,7 @@ import android.webkit.WebViewClient
 import android.widget.ImageButton
 import android.widget.LinearLayout
 import android.widget.TextView
+import com.billwerk.checkout.sheet.CheckoutSheetConstants
 import com.billwerk.checkout.sheet.SDKEventType
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
@@ -49,9 +50,7 @@ enum class SheetStyle {
  * @property context The context in which the sheet should be inflated in
  */
 class CheckoutSheet(private val context: Context) {
-
     private val DEVICE_HEIGHT = Resources.getSystem().displayMetrics.heightPixels
-    private val DOMAIN = "https://checkout.reepay.com"
 
     private var isDialogOpen = false
 
@@ -197,7 +196,7 @@ class CheckoutSheet(private val context: Context) {
             val queryparams = if (config.hideHeader) "?hideHeader=true" else ""
             var isPageError = false
 
-            loadUrl("${DOMAIN}/#/${config.sessionId}${queryparams}")
+            loadUrl("${CheckoutSheetConstants.DOMAIN}/#/${config.sessionId}${queryparams}")
             settings.javaScriptEnabled = true
             settings.safeBrowsingEnabled = true
             webViewClient = object : WebViewClient() {
@@ -251,16 +250,16 @@ class CheckoutSheet(private val context: Context) {
 
     private fun handleUrlOverrideLoading(view: WebView, url: String): Boolean {
 
-        if (url.startsWith(DOMAIN)) {
+        if (url.startsWith(CheckoutSheetConstants.DOMAIN)) {
             return false
         }
 
-        if (url.startsWith("https://pay-mt.mobilepay.dk/")) {
+        if (url.startsWith(CheckoutSheetConstants.MOBILEPAY_URL_TEST)) {
             view.loadUrl(url)
-            return false
+            return true
         }
 
-        if (url.startsWith("vippsmt://")) {
+        if (url.startsWith(CheckoutSheetConstants.VIPPS_URL_TEST)) {
             val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
             view.context.startActivity(intent)
             return true
