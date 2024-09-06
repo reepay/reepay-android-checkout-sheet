@@ -5,7 +5,6 @@ import android.content.Intent
 import android.content.res.Resources
 import android.graphics.Bitmap
 import android.net.Uri
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.webkit.WebResourceError
@@ -212,7 +211,7 @@ class CheckoutSheet(private val context: Context) {
                 @Deprecated("Deprecated in API level 24")
                 @Override
                 override fun shouldOverrideUrlLoading(view: WebView, url: String): Boolean {
-                    return handleUrlOverrideLoading(view, url)
+                    return handleUrlOverrideLoading(view, Uri.parse(url))
                 }
 
                 @Override
@@ -220,7 +219,7 @@ class CheckoutSheet(private val context: Context) {
                     view: WebView,
                     request: WebResourceRequest
                 ): Boolean {
-                    return handleUrlOverrideLoading(view, request.url.toString())
+                    return handleUrlOverrideLoading(view, request.url)
                 }
 
 
@@ -248,25 +247,20 @@ class CheckoutSheet(private val context: Context) {
 
     }
 
-    private fun handleUrlOverrideLoading(view: WebView, url: String): Boolean {
+    private fun handleUrlOverrideLoading(view: WebView, uri: Uri): Boolean {
 
-        if (url.startsWith(CheckoutSheetConstants.DOMAIN)) {
+        if (uri.toString().startsWith(CheckoutSheetConstants.DOMAIN)) {
             return false
         }
 
-        if (url.startsWith(CheckoutSheetConstants.MOBILEPAY_URL_TEST)) {
-            view.loadUrl(url)
-            return true
-        }
+        val isCustomUrlScheme = !uri.scheme.toString().startsWith("http")
 
-        if (url.startsWith(CheckoutSheetConstants.VIPPS_URL_TEST)) {
-            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+        if (isCustomUrlScheme) {
+            val intent = Intent(Intent.ACTION_VIEW, uri)
             view.context.startActivity(intent)
-            return true
         }
 
-
-        return false
+        return true
     }
 }
 
