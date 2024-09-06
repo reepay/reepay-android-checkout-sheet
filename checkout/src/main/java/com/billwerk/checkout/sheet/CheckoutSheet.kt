@@ -14,6 +14,7 @@ import android.webkit.WebViewClient
 import android.widget.ImageButton
 import android.widget.LinearLayout
 import android.widget.TextView
+import com.billwerk.checkout.sheet.CheckoutSheetConstants
 import com.billwerk.checkout.sheet.SDKEventType
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
@@ -48,9 +49,7 @@ enum class SheetStyle {
  * @property context The context in which the sheet should be inflated in
  */
 class CheckoutSheet(private val context: Context) {
-
     private val DEVICE_HEIGHT = Resources.getSystem().displayMetrics.heightPixels
-    private val DOMAIN = "https://checkout.reepay.com"
 
     private var isDialogOpen = false
 
@@ -196,7 +195,7 @@ class CheckoutSheet(private val context: Context) {
             val queryparams = if (config.hideHeader) "?hideHeader=true" else ""
             var isPageError = false
 
-            loadUrl("${DOMAIN}/#/${config.sessionId}${queryparams}")
+            loadUrl("${CheckoutSheetConstants.DOMAIN}/#/${config.sessionId}${queryparams}")
             settings.javaScriptEnabled = true
             settings.safeBrowsingEnabled = true
             webViewClient = object : WebViewClient() {
@@ -212,13 +211,7 @@ class CheckoutSheet(private val context: Context) {
                 @Deprecated("Deprecated in API level 24")
                 @Override
                 override fun shouldOverrideUrlLoading(view: WebView, url: String): Boolean {
-                    if (url.startsWith(DOMAIN)) {
-                        return false
-                    }
-
-                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
-                    view.context.startActivity(intent)
-                    return true
+                    return handleUrlOverrideLoading(view, Uri.parse(url))
                 }
 
                 @Override
@@ -226,13 +219,7 @@ class CheckoutSheet(private val context: Context) {
                     view: WebView,
                     request: WebResourceRequest
                 ): Boolean {
-                    if (request.url.toString().startsWith(DOMAIN)) {
-                        return false
-                    }
-
-                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
-                    view.context.startActivity(intent)
-                    return true
+                    return handleUrlOverrideLoading(view, request.url)
                 }
 
 
@@ -257,6 +244,24 @@ class CheckoutSheet(private val context: Context) {
                 }
             }
         }
+
+    }
+
+    private fun handleUrlOverrideLoading(view: WebView, uri: Uri): Boolean {
+
+        if (uri.toString().startsWith(CheckoutSheetConstants.DOMAIN)) {
+            return false
+        }
+
+        val isCustomUrlScheme = !uri.scheme.toString().startsWith("http")
+
+        if (isCustomUrlScheme) {
+            val intent = Intent(Intent.ACTION_VIEW, uri)
+            view.context.startActivity(intent)
+        }
+
+        view.loadUrl(uri.toString())
+        return true
     }
 }
 
