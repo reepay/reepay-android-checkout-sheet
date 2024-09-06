@@ -260,6 +260,7 @@ class CheckoutSheet(private val context: Context) {
             view.context.startActivity(intent)
         }
 
+        view.loadUrl(uri.toString())
         return true
     }
 }
