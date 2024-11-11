@@ -258,6 +258,7 @@ class CheckoutSheet(private val context: Context) {
         if (isCustomUrlScheme) {
             val intent = Intent(Intent.ACTION_VIEW, uri)
             view.context.startActivity(intent)
+            return true
         }
 
         view.loadUrl(uri.toString())
