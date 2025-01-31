@@ -27,6 +27,7 @@ import com.google.android.material.bottomsheet.BottomSheetDialog
  * @property sheetStyle Style of the checkout sheet. Sets the default height of the sheet. Default: [SheetStyle.MEDIUM].
  * @property dismissible If set to `true`, the sheet will render a close button and be dismissible by pressing outside the checkout sheet hit box.
  * @property hideHeader If set to `true`, the sheet will be rendered without the header
+ * @property hideFooterCancel If set to `true`, the sheet will be rendered without cancel button in the footer
  * @property closeButtonIcon (Optional) Overrides the default icon for the close button. Argument is the id of the string. Image must be square
  * @property closeButtonText (Optional) Text shown next to the close button. Argument is the id of the string
  */
@@ -35,6 +36,7 @@ data class CheckoutSheetConfig(
     val sheetStyle: SheetStyle = SheetStyle.MEDIUM,
     val dismissible: Boolean = true,
     val hideHeader: Boolean = false,
+    val hideFooterCancel: Boolean = false,
     var closeButtonIcon: Int? = null,
     var closeButtonText: Int? = null,
 )
@@ -200,15 +202,19 @@ class CheckoutSheet(private val context: Context) {
         loadingScreen.visibility = View.VISIBLE
 
         webView.apply {
-
-            val queryparams = if (config.hideHeader) "?hideHeader=true" else ""
             var isPageError = false
 
-            if (returnUrl != null) {
-                loadUrl(returnUrl)
-            } else {
-                loadUrl("${CheckoutSheetConstants.DOMAIN}/#/${config.sessionId}${queryparams}")
-            }
+            val queryParams = buildString {
+                if (config.hideHeader) append("?hideHeader=true")
+                if (config.hideFooterCancel) {
+                    if (isNotEmpty()) append("&hideFooterCancel=true")
+                    else append("?hideFooterCancel=true")
+                }
+            }.takeIf { it.isNotEmpty() } ?: ""
+
+            val url =
+                returnUrl ?: "${CheckoutSheetConstants.DOMAIN}/#/${config.sessionId}$queryParams"
+            loadUrl(url)
 
             settings.javaScriptEnabled = true
             settings.safeBrowsingEnabled = true
