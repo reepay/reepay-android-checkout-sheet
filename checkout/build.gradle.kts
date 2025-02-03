@@ -1,5 +1,5 @@
 buildscript {
-    val kotlinVersion = "2.1.0"
+    val kotlinVersion = "2.1.10"
 
     repositories {
         google()
@@ -63,7 +63,7 @@ java {
 dependencies {
     implementation("androidx.core:core-ktx:1.15.0")
     implementation("androidx.appcompat:appcompat:1.7.0")
-    implementation("com.google.code.gson:gson:2.11.0")
+    implementation("com.google.code.gson:gson:2.12.1")
     implementation("com.google.android.material:material:1.12.0")
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.2.1")
