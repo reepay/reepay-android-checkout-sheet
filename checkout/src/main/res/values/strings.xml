@@ -1,5 +1,5 @@
 <resources>
     <string name="rp_close_button_text">Close</string>
-    <string name="rp_close_button_description">Closes the checkout sheet dialog</string>
+    <string name="rp_close_button_description">Close checkout sheet dialog</string>
     <string name="rp_loading_error_message">An error occurred while loading the checkout session. Please check that you have connection to the internet</string>
 </resources>
