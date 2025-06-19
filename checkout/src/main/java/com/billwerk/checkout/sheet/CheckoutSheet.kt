@@ -5,6 +5,7 @@ import android.content.Intent
 import android.content.res.Resources
 import android.graphics.Bitmap
 import android.net.Uri
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.webkit.WebResourceError
@@ -263,6 +264,7 @@ class CheckoutSheet(private val context: Context) {
                     isPageError = true
                 }
             }
+            injectDeviceFontSizePreference(webView)
         }
 
     }
@@ -282,6 +284,18 @@ class CheckoutSheet(private val context: Context) {
             view.loadUrl(uri.toString())
             return true
         }
+    }
+
+    private fun injectDeviceFontSizePreference(view: WebView) {
+        val fontScale = context.resources.configuration.fontScale
+        val scaleFactorEvent = """
+            window.dispatchEvent(new CustomEvent('webview-font-size', {
+              detail: { scaleFactor: $fontScale }
+            }));""".trimIndent()
+
+        view.evaluateJavascript(
+            scaleFactorEvent, null
+        )
     }
 }
 
