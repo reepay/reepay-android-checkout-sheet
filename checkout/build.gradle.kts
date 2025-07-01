@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+
 buildscript {
     val kotlinVersion = "2.2.0"
 
@@ -20,11 +22,15 @@ plugins {
     id("maven-publish")
 }
 
+version = "1.0.21"
+
 android {
     namespace = "com.billwerk.checkout"
-    compileSdk = 34
+    compileSdk = 36
 
     defaultConfig {
+        resValue("string", "library_version", version.toString())
+
         minSdk = 26
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("consumer-rules.pro")
@@ -44,8 +50,10 @@ android {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
-    kotlinOptions {
-        jvmTarget = "11"
+    kotlin {
+        compilerOptions {
+            jvmTarget.set(JvmTarget.JVM_11)
+        }
     }
 }
 
@@ -63,6 +71,7 @@ java {
 dependencies {
     implementation("androidx.core:core-ktx:1.16.0")
     implementation("androidx.appcompat:appcompat:1.7.1")
+    implementation("androidx.webkit:webkit:1.14.0")
     implementation("com.google.code.gson:gson:2.13.1")
     implementation("com.google.android.material:material:1.12.0")
     testImplementation("junit:junit:4.13.2")

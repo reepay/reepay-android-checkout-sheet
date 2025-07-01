@@ -1,11 +1,12 @@
-package com.billwerk.checkout
+package com.billwerk.checkout.sheet
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.content.res.Resources
 import android.graphics.Bitmap
 import android.net.Uri
-import android.util.Log
+import android.os.Build
 import android.view.LayoutInflater
 import android.view.View
 import android.webkit.WebResourceError
@@ -15,11 +16,12 @@ import android.webkit.WebViewClient
 import android.widget.ImageButton
 import android.widget.LinearLayout
 import android.widget.TextView
-import com.billwerk.checkout.sheet.CheckoutSheetConstants
-import com.billwerk.checkout.sheet.SDKEventType
+import androidx.webkit.WebSettingsCompat
+import androidx.webkit.WebViewFeature
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
-
+import androidx.core.net.toUri
+import com.billwerk.checkout.R
 
 /**
  * Configuration class for checkout sheet.
@@ -65,7 +67,7 @@ class CheckoutSheet(private val context: Context) {
      */
     fun open(config: CheckoutSheetConfig) {
         setupSheet(config)
-        CheckoutEventPublisher.postSimpleEvent(SDKEventType.Open)
+        CheckoutEventPublisher.Companion.postSimpleEvent(SDKEventType.Open)
     }
 
     /**
@@ -89,7 +91,7 @@ class CheckoutSheet(private val context: Context) {
 
     private fun setupSheet(config: CheckoutSheetConfig, returnUrl: String? = null) {
         // Validate session ID
-        if (!SessionValidator.validateToken(config.sessionId)) {
+        if (!SessionValidator.Companion.validateToken(config.sessionId)) {
             throw IllegalArgumentException("Invalid session ID")
         }
 
@@ -113,7 +115,7 @@ class CheckoutSheet(private val context: Context) {
         bottomSheetDialog.apply {
             setCancelable(config.dismissible)
 
-            var sheetHeight = getSheetHeight(config.sheetStyle)
+            val sheetHeight = getSheetHeight(config.sheetStyle)
 
             behavior.maxHeight = sheetHeight
             loadingScreen.minimumHeight = sheetHeight
@@ -137,7 +139,7 @@ class CheckoutSheet(private val context: Context) {
                 }
             })
             bottomSheetDialog.setOnDismissListener {
-                CheckoutEventPublisher.postSimpleEvent(
+                CheckoutEventPublisher.Companion.postSimpleEvent(
                     SDKEventType.Close
                 )
             }
@@ -189,16 +191,24 @@ class CheckoutSheet(private val context: Context) {
         }
     }
 
+    @SuppressLint("SetJavaScriptEnabled")
     private fun setupWebView(
         view: View,
         config: CheckoutSheetConfig,
         returnUrl: String? = null
     ) {
         val webView = view.findViewById<WebView>(R.id.rp_webView)
-        webView.addJavascriptInterface(CheckoutEventPublisher, "AndroidWebViewListener")
+        webView.addJavascriptInterface(CheckoutEventPublisher.Companion, "AndroidWebViewListener")
+
+        // Enable Google Pay within WebView
+        if (WebViewFeature.isFeatureSupported(
+                WebViewFeature.PAYMENT_REQUEST)
+            ) {
+            WebSettingsCompat.setPaymentRequestEnabled(webView.settings, true);
+        }
+
         val loadingScreen = view.findViewById<LinearLayout>(R.id.rp_loadingScreen)
         val errorScreen = view.findViewById<LinearLayout>(R.id.rp_errorScreen)
-
 
         loadingScreen.visibility = View.VISIBLE
 
@@ -219,6 +229,13 @@ class CheckoutSheet(private val context: Context) {
 
             settings.javaScriptEnabled = true
             settings.safeBrowsingEnabled = true
+
+            val manufacturer = Build.MANUFACTURER
+            val model = Build.MODEL
+            val version = context.getString(R.string.library_version)
+            val customUserAgent = "ReepayCheckoutSheet/${version} (${manufacturer} ${model}; Android version ${Build.VERSION.RELEASE}) AndroidSystemWebView"
+            settings.userAgentString = customUserAgent
+
             webViewClient = object : WebViewClient() {
                 @Override
                 override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {
@@ -232,7 +249,7 @@ class CheckoutSheet(private val context: Context) {
                 @Deprecated("Deprecated in API level 24")
                 @Override
                 override fun shouldOverrideUrlLoading(view: WebView, url: String): Boolean {
-                    return handleUrlOverrideLoading(view, Uri.parse(url))
+                    return handleUrlOverrideLoading(view, url.toUri())
                 }
 
                 @Override
