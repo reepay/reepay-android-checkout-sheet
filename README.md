@@ -4,7 +4,7 @@ CheckoutSheet is a prebuilt UI that contains the steps to pay in Reepay Checkout
 payment details and confirming the payment. The checkout is placed into a sheet or a fullscreen
 cover that displays on top of your app's UI.
 
-See official [documentation](https://optimize-docs.billwerk.com/docs/checkout-sdk-for-android)
+See official [documentation](https://docs.frisbii.com/docs/checkout-sdk-for-android)
 
 ## Table of contents
 
@@ -19,12 +19,12 @@ See official [documentation](https://optimize-docs.billwerk.com/docs/checkout-sd
 
 ## Features
 
-- **Payment security**: We are [PCI compliant](https://docs.reepay.com/docs/pci-certified), which
+- **Payment security**: We are [PCI compliant](https://docs.frisbii.com/docs/pci-certified), which
   makes it simple for you to collect sensitive data such as credit card numbers. This means the
   sensitive data is sent directly to Reepay instead of passing through your server.
 
 - **SCA-ready**: The SDK automatically performs native 3D Secure authentication to comply
-  with [Strong Customer Authentication](https://stripe.com/docs/strong-customer-authentication)
+  with [Strong Customer Authentication](https://docs.frisbii.com/docs/strong-customer-authentication)
   regulation in Europe.
 
 ## Requirements

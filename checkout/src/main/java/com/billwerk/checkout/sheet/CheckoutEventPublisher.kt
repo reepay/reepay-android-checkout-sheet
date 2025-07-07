@@ -1,10 +1,7 @@
-package com.billwerk.checkout
+package com.billwerk.checkout.sheet
 
 import android.webkit.JavascriptInterface
 import androidx.annotation.Keep
-import com.billwerk.checkout.sheet.SDKEventMessage
-import com.billwerk.checkout.sheet.SDKEventType
-import com.billwerk.checkout.sheet.SDKUserEventMessage
 import com.google.gson.Gson
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
