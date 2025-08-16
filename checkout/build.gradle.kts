@@ -1,7 +1,7 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 buildscript {
-    val kotlinVersion = "2.2.0"
+    val kotlinVersion = "2.2.10"
 
     repositories {
         google()
