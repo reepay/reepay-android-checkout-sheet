@@ -222,7 +222,6 @@ class CheckoutSheet(private val context: Context) {
         // Enable Google Pay within WebView
         if (WebViewFeature.isFeatureSupported(WebViewFeature.PAYMENT_REQUEST)) {
             try {
-                println("lol: ${getCustomUserAgent()}")
                 WebSettingsCompat.setPaymentRequestEnabled(settings, true);
             } catch (exception: UnsupportedOperationException) {
                 println("[CheckoutSheet] Google Pay not supported on Android WebView")
