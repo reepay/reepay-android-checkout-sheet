@@ -1,4 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
-
+    <!--
+        Allow Chromium defined actions PAY, IS_READY_TO_PAY,
+        UPDATE_PAYMENT_DETAILS to be initiated in your Android App or SDK
+    -->
+    <queries>
+        <intent>
+            <action android:name="org.chromium.intent.action.PAY" />
+        </intent>
+        <intent>
+            <action android:name="org.chromium.intent.action.IS_READY_TO_PAY" />
+        </intent>
+        <intent>
+            <action android:name="org.chromium.intent.action.UPDATE_PAYMENT_DETAILS" />
+        </intent>
+    </queries>
 </manifest>

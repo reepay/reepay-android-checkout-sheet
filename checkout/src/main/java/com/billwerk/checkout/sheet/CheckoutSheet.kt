@@ -7,8 +7,10 @@ import android.content.res.Resources
 import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Build
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
+import android.webkit.WebChromeClient
 import android.webkit.WebResourceError
 import android.webkit.WebResourceRequest
 import android.webkit.WebView
@@ -198,90 +200,109 @@ class CheckoutSheet(private val context: Context) {
         returnUrl: String? = null
     ) {
         val webView = view.findViewById<WebView>(R.id.rp_webView)
-        webView.addJavascriptInterface(CheckoutEventPublisher.Companion, "AndroidWebViewListener")
-
-        // Enable Google Pay within WebView
-        if (WebViewFeature.isFeatureSupported(WebViewFeature.PAYMENT_REQUEST)) {
-            WebSettingsCompat.setPaymentRequestEnabled(webView.settings, true);
-        }
-
         val loadingScreen = view.findViewById<LinearLayout>(R.id.rp_loadingScreen)
         val errorScreen = view.findViewById<LinearLayout>(R.id.rp_errorScreen)
 
         loadingScreen.visibility = View.VISIBLE
 
-        webView.apply {
-            var isPageError = false
+        val queryParams = getQueryParams(config)
+        val url = returnUrl ?: "${CheckoutSheetConstants.DOMAIN}/#/${config.sessionId}$queryParams"
 
-            val queryParams = buildString {
-                if (config.hideHeader) append("?hideHeader=true")
-                if (config.hideFooterCancel) {
-                    if (isNotEmpty()) append("&hideFooterCancel=true")
-                    else append("?hideFooterCancel=true")
-                }
-            }.takeIf { it.isNotEmpty() } ?: ""
+        webView.addJavascriptInterface(CheckoutEventPublisher.Companion, "AndroidWebViewListener")
+        webView.scrollBarStyle = WebView.SCROLLBARS_INSIDE_OVERLAY
+        webView.webChromeClient = WebChromeClient()
+        webView.webViewClient = getWebViewClient(webView, errorScreen, loadingScreen)
 
-            val url =
-                returnUrl ?: "${CheckoutSheetConstants.DOMAIN}/#/${config.sessionId}$queryParams"
-            loadUrl(url)
+        // Configure WebView settings
+        val settings = webView.settings
+        settings.javaScriptEnabled = true
+        settings.safeBrowsingEnabled = true
+        settings.userAgentString = getCustomUserAgent()
 
-            settings.javaScriptEnabled = true
-            settings.safeBrowsingEnabled = true
-
-            val manufacturer = Build.MANUFACTURER
-            val model = Build.MODEL
-            val version = context.getString(R.string.library_version)
-            val customUserAgent = "ReepayCheckoutSheet/${version} (${manufacturer} ${model}; Android version ${Build.VERSION.RELEASE}) AndroidSystemWebView"
-            settings.userAgentString = customUserAgent
-
-            webViewClient = object : WebViewClient() {
-                @Override
-                override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {
-                    super.onPageStarted(view, url, favicon)
-                    isPageError = false
-                    webView.visibility = View.GONE
-                    errorScreen.visibility = View.GONE
-                    loadingScreen.visibility = View.VISIBLE
-                }
-
-                @Deprecated("Deprecated in API level 24")
-                @Override
-                override fun shouldOverrideUrlLoading(view: WebView, url: String): Boolean {
-                    return handleUrlOverrideLoading(view, url.toUri())
-                }
-
-                @Override
-                override fun shouldOverrideUrlLoading(
-                    view: WebView,
-                    request: WebResourceRequest
-                ): Boolean {
-                    return handleUrlOverrideLoading(view, request.url)
-                }
-
-
-                @Override
-                override fun onPageFinished(view: WebView, url: String) {
-                    if (isPageError) {
-                        webView.visibility = View.GONE
-                        errorScreen.visibility = View.VISIBLE
-                    } else {
-                        webView.visibility = View.VISIBLE
-                    }
-                }
-
-
-                @Override
-                override fun onReceivedError(
-                    view: WebView?,
-                    request: WebResourceRequest?,
-                    error: WebResourceError?
-                ) {
-                    isPageError = true
-                }
+        // Enable Google Pay within WebView
+        if (WebViewFeature.isFeatureSupported(WebViewFeature.PAYMENT_REQUEST)) {
+            try {
+                WebSettingsCompat.setPaymentRequestEnabled(settings, true);
+            } catch (exception: UnsupportedOperationException) {
+                println("[CheckoutSheet] Google Pay not supported on Android WebView")
             }
-            injectDeviceFontSizePreference(webView)
         }
 
+        injectDeviceFontSizePreference(webView)
+
+        webView.loadUrl(url)
+    }
+
+    private fun getWebViewClient(
+        webView: WebView,
+        errorScreen: LinearLayout,
+        loadingScreen: LinearLayout
+    ): WebViewClient {
+        val webViewClient = object : WebViewClient() {
+            private var isPageError = false
+
+            @Override
+            override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {
+                super.onPageStarted(view, url, favicon)
+                isPageError = false
+                webView.visibility = View.GONE
+                errorScreen.visibility = View.GONE
+                loadingScreen.visibility = View.VISIBLE
+            }
+
+            @Deprecated("Deprecated in API level 24")
+            @Override
+            override fun shouldOverrideUrlLoading(view: WebView, url: String): Boolean {
+                return handleUrlOverrideLoading(view, url.toUri())
+            }
+
+            @Override
+            override fun shouldOverrideUrlLoading(
+                view: WebView,
+                request: WebResourceRequest
+            ): Boolean {
+                return handleUrlOverrideLoading(view, request.url)
+            }
+
+            @Override
+            override fun onPageFinished(view: WebView, url: String) {
+                if (isPageError) {
+                    webView.visibility = View.GONE
+                    errorScreen.visibility = View.VISIBLE
+                } else {
+                    webView.visibility = View.VISIBLE
+                }
+            }
+
+            @Override
+            override fun onReceivedError(
+                view: WebView?,
+                request: WebResourceRequest?,
+                error: WebResourceError?
+            ) {
+                isPageError = true
+            }
+        }
+        return webViewClient
+    }
+
+    private fun getQueryParams(config: CheckoutSheetConfig): String {
+        return buildString {
+            if (config.hideHeader) append("?hideHeader=true")
+            if (config.hideFooterCancel) {
+                if (isNotEmpty()) append("&hideFooterCancel=true")
+                else append("?hideFooterCancel=true")
+            }
+        }.takeIf { it.isNotEmpty() } ?: ""
+    }
+
+    private fun getCustomUserAgent(): String {
+        val manufacturer = Build.MANUFACTURER
+        val model = Build.MODEL
+        val version = context.getString(R.string.library_version)
+        val customUserAgent =
+            "ReepayCheckoutSheet/${version} (${manufacturer} ${model}; Android version ${Build.VERSION.RELEASE}) AndroidSystemWebView"
+        return customUserAgent
     }
 
     private fun handleUrlOverrideLoading(view: WebView, uri: Uri): Boolean {

@@ -22,7 +22,7 @@ plugins {
     id("maven-publish")
 }
 
-version = "1.0.21"
+version = "1.0.22"
 
 android {
     namespace = "com.billwerk.checkout"
@@ -69,9 +69,9 @@ java {
 }
 
 dependencies {
+    api("androidx.webkit:webkit:1.14.0")
     implementation("androidx.core:core-ktx:1.17.0")
     implementation("androidx.appcompat:appcompat:1.7.1")
-    implementation("androidx.webkit:webkit:1.14.0")
     implementation("com.google.code.gson:gson:2.13.1")
     implementation("com.google.android.material:material:1.12.0")
     testImplementation("junit:junit:4.13.2")
