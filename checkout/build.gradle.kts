@@ -49,13 +49,21 @@ android {
             consumerProguardFiles("consumer-rules.pro")
         }
     }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
+
     kotlin {
         compilerOptions {
             jvmTarget.set(JvmTarget.JVM_11)
+        }
+    }
+
+    publishing {
+        singleVariant("release") {
+
         }
     }
 }
@@ -102,14 +110,17 @@ afterEvaluate {
 
                 pom.withXml {
                     val root = asNode()
-                    val existingDeps = (root.get("dependencies") as? List<Node>)?.firstOrNull()
+                    val depsList = (root.get("dependencies") as? groovy.util.NodeList)?.toList()
+                    val existingDeps = depsList?.firstOrNull() as? Node
                         ?: root.appendNode("dependencies")
 
                     val alreadyPresent = existingDeps.children()
                         .filterIsInstance<Node>()
                         .any {
-                            (it.get("groupId") as? List<*>)?.firstOrNull()?.toString() == "androidx.webkit" &&
-                                    (it.get("artifactId") as? List<*>)?.firstOrNull()?.toString() == "webkit"
+                            (it.get("groupId") as? List<*>)?.firstOrNull()
+                                ?.toString() == "androidx.webkit" &&
+                                    (it.get("artifactId") as? List<*>)?.firstOrNull()
+                                        ?.toString() == "webkit"
                         }
 
                     if (!alreadyPresent && webkitDep != null) {
