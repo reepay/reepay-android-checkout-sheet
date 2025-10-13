@@ -96,6 +96,10 @@ afterEvaluate {
                     .dependencies
                     .find { it.group == "androidx.webkit" && it.name == "webkit" }
 
+                if (webkitDep == null) {
+                    logger.warn("⚠️ No WebKit dependency found in api configuration; POM will not include it.")
+                }
+
                 pom.withXml {
                     val root = asNode()
                     val existingDeps = (root.get("dependencies") as? List<Node>)?.firstOrNull()
