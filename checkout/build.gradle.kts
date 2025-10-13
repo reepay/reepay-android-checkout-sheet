@@ -1,4 +1,7 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import org.gradle.api.publish.PublishingExtension
+import org.gradle.api.publish.maven.MavenPublication
+import groovy.util.Node
 
 buildscript {
     val kotlinVersion = "2.2.20"
@@ -22,7 +25,7 @@ plugins {
     id("maven-publish")
 }
 
-version = "1.0.22-test"
+version = "1.0.23"
 
 android {
     namespace = "com.billwerk.checkout"
@@ -79,3 +82,36 @@ dependencies {
     androidTestImplementation("androidx.test.espresso:espresso-core:3.7.0")
 }
 
+afterEvaluate {
+    extensions.configure<PublishingExtension>("publishing") {
+        publications {
+            create<MavenPublication>("release") {
+                from(components["release"])
+                groupId = "com.github.reepay"
+                artifactId = "reepay-android-checkout-sheet"
+                version = project.version.toString()
+
+                pom.withXml {
+                    val root = asNode()
+                    val depsNodeList = root.get("dependencies") as? List<Node>
+                    val depsNode = if (!depsNodeList.isNullOrEmpty()) {
+                        depsNodeList.first()
+                    } else {
+                        root.appendNode("dependencies")
+                    }
+
+                    val existingDeps = depsNode.children().filterIsInstance<Node>()
+                        .mapNotNull { it.get("artifactId")?.toString() }
+
+                    if (!existingDeps.contains("webkit")) {
+                        val depNode = depsNode.appendNode("dependency")
+                        depNode.appendNode("groupId", "androidx.webkit")
+                        depNode.appendNode("artifactId", "webkit")
+                        depNode.appendNode("version", "1.14.0")
+                        depNode.appendNode("scope", "compile")
+                    }
+                }
+            }
+        }
+    }
+}
