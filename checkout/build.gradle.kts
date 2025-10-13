@@ -1,5 +1,4 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
-import org.gradle.api.publish.PublishingExtension
 import org.gradle.api.publish.maven.MavenPublication
 import groovy.util.Node
 
@@ -25,7 +24,7 @@ plugins {
     id("maven-publish")
 }
 
-version = "1.0.23"
+version = "1.0.24"
 
 android {
     namespace = "com.billwerk.checkout"
@@ -62,7 +61,9 @@ android {
     }
 
     publishing {
-        singleVariant("release")
+        singleVariant("release") {
+
+        }
     }
 }
 
@@ -89,7 +90,7 @@ dependencies {
 }
 
 afterEvaluate {
-    extensions.configure<PublishingExtension>("publishing") {
+    publishing {
         publications {
             create<MavenPublication>("release") {
                 from(components["release"])
