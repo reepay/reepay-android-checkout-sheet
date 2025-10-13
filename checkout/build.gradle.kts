@@ -91,23 +91,28 @@ afterEvaluate {
                 artifactId = "reepay-android-checkout-sheet"
                 version = project.version.toString()
 
+                val webkitDep = project.configurations
+                    .getByName("api")
+                    .dependencies
+                    .find { it.group == "androidx.webkit" && it.name == "webkit" }
+
                 pom.withXml {
                     val root = asNode()
-                    val depsNodeList = root.get("dependencies") as? List<Node>
-                    val depsNode = if (!depsNodeList.isNullOrEmpty()) {
-                        depsNodeList.first()
-                    } else {
-                        root.appendNode("dependencies")
-                    }
+                    val existingDeps = (root.get("dependencies") as? List<Node>)?.firstOrNull()
+                        ?: root.appendNode("dependencies")
 
-                    val existingDeps = depsNode.children().filterIsInstance<Node>()
-                        .mapNotNull { it.get("artifactId")?.toString() }
+                    val alreadyPresent = existingDeps.children()
+                        .filterIsInstance<Node>()
+                        .any {
+                            (it.get("groupId") as? List<*>)?.firstOrNull()?.toString() == "androidx.webkit" &&
+                                    (it.get("artifactId") as? List<*>)?.firstOrNull()?.toString() == "webkit"
+                        }
 
-                    if (!existingDeps.contains("webkit")) {
-                        val depNode = depsNode.appendNode("dependency")
-                        depNode.appendNode("groupId", "androidx.webkit")
-                        depNode.appendNode("artifactId", "webkit")
-                        depNode.appendNode("version", "1.14.0")
+                    if (!alreadyPresent && webkitDep != null) {
+                        val depNode = existingDeps.appendNode("dependency")
+                        depNode.appendNode("groupId", webkitDep.group)
+                        depNode.appendNode("artifactId", webkitDep.name)
+                        depNode.appendNode("version", webkitDep.version)
                         depNode.appendNode("scope", "compile")
                     }
                 }
