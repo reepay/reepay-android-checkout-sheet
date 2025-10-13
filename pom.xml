@@ -7,11 +7,4 @@
   <version>1.0.0</version>
   <packaging>pom</packaging>
   <description>Checkout SDK for Reepay</description>
-  <dependencies>
-    <dependency>
-      <groupId>androidx.webkit</groupId>
-      <artifactId>webkit</artifactId>
-      <version>1.14.0</version>
-    </dependency>
-  </dependencies>
  </project>
