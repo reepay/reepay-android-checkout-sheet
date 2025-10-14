@@ -1,7 +1,5 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
-import org.gradle.api.publish.PublishingExtension
 import org.gradle.api.publish.maven.MavenPublication
-import groovy.util.Node
 
 buildscript {
     val kotlinVersion = "2.2.20"
@@ -25,7 +23,7 @@ plugins {
     id("maven-publish")
 }
 
-version = "1.0.23"
+version = "1.0.24-test-4"
 
 android {
     namespace = "com.billwerk.checkout"
@@ -62,7 +60,9 @@ android {
     }
 
     publishing {
-        singleVariant("release")
+        singleVariant("release") {
+
+        }
     }
 }
 
@@ -89,46 +89,13 @@ dependencies {
 }
 
 afterEvaluate {
-    extensions.configure<PublishingExtension>("publishing") {
+    publishing {
         publications {
             create<MavenPublication>("release") {
                 from(components["release"])
                 groupId = "com.github.reepay"
                 artifactId = "reepay-android-checkout-sheet"
                 version = project.version.toString()
-
-                val webkitDep = project.configurations
-                    .getByName("api")
-                    .dependencies
-                    .find { it.group == "androidx.webkit" && it.name == "webkit" }
-
-                if (webkitDep == null) {
-                    logger.warn("⚠️ No WebKit dependency found in api configuration; POM will not include it.")
-                }
-
-                pom.withXml {
-                    val root = asNode()
-                    val depsList = (root.get("dependencies") as? groovy.util.NodeList)?.toList()
-                    val existingDeps = depsList?.firstOrNull() as? Node
-                        ?: root.appendNode("dependencies")
-
-                    val alreadyPresent = existingDeps.children()
-                        .filterIsInstance<Node>()
-                        .any {
-                            (it.get("groupId") as? List<*>)?.firstOrNull()
-                                ?.toString() == "androidx.webkit" &&
-                                    (it.get("artifactId") as? List<*>)?.firstOrNull()
-                                        ?.toString() == "webkit"
-                        }
-
-                    if (!alreadyPresent && webkitDep != null) {
-                        val depNode = existingDeps.appendNode("dependency")
-                        depNode.appendNode("groupId", webkitDep.group)
-                        depNode.appendNode("artifactId", webkitDep.name)
-                        depNode.appendNode("version", webkitDep.version)
-                        depNode.appendNode("scope", "compile")
-                    }
-                }
             }
         }
     }

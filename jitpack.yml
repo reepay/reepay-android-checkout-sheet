@@ -3,5 +3,4 @@ jdk:
 before_install:
   - ./scripts/prepareJitpackEnvironment.sh
 install:
-  - FILE="-Dfile=checkout/build/outputs/aar/checkout-release.aar"
-  - mvn install:install-file $FILE -DgroupId=com.github.reepay -DartifactId=reepay-android-checkout-sheet -Dversion=1.0 -Dpackaging=aar -DgeneratePom=true
+  - ./gradlew :checkout:publishToMavenLocal
