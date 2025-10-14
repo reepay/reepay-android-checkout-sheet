@@ -3,5 +3,12 @@ jdk:
 before_install:
   - ./scripts/prepareJitpackEnvironment.sh
 install:
-  - FILE="-Dfile=checkout/build/outputs/aar/checkout-release.aar"
-  - mvn install:install-file $FILE -DgroupId=com.github.reepay -DartifactId=reepay-android-checkout-sheet -Dversion=1.0 -Dpackaging=aar -DgeneratePom=true
+  - ./gradlew assembleRelease generatePomFileForReleasePublication
+  - VERSION=$(./gradlew -q printVersion)
+  - mvn install:install-file \
+      -Dfile=checkout/build/outputs/aar/checkout-release.aar \
+      -DpomFile=checkout/build/publications/release/pom-default.xml \
+      -DgroupId=com.github.reepay \
+      -DartifactId=reepay-android-checkout-sheet \
+      -Dversion=$VERSION \
+      -Dpackaging=aar
