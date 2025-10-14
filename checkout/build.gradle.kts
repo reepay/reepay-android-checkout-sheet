@@ -105,38 +105,6 @@ afterEvaluate {
                 artifact(releaseAar) {
                     builtBy(tasks.named("assembleRelease"))
                 }
-
-                pom.withXml {
-                    val root = asNode()
-                    val depsNode =
-                        root.get("dependencies") as? Node ?: root.appendNode("dependencies")
-
-                    val webkitDep = project.configurations
-                        .getByName("api")
-                        .dependencies
-                        .find { it.group == "androidx.webkit" && it.name == "webkit" }
-
-                    if (webkitDep != null) {
-                        val alreadyPresent = depsNode.children()
-                            .filterIsInstance<Node>()
-                            .any {
-                                (it.get("groupId") as? List<*>)?.firstOrNull()
-                                    ?.toString() == "androidx.webkit" &&
-                                        (it.get("artifactId") as? List<*>)?.firstOrNull()
-                                            ?.toString() == "webkit"
-                            }
-
-                        if (!alreadyPresent) {
-                            val depNode = depsNode.appendNode("dependency")
-                            depNode.appendNode("groupId", webkitDep.group)
-                            depNode.appendNode("artifactId", webkitDep.name)
-                            depNode.appendNode("version", webkitDep.version)
-                            depNode.appendNode("scope", "compile")
-                        }
-                    } else {
-                        logger.warn("⚠️ No WebKit dependency found in api configuration; POM will not include it.")
-                    }
-                }
             }
         }
     }
