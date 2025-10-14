@@ -1,6 +1,7 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.gradle.api.publish.maven.MavenPublication
 import groovy.util.Node
+import java.nio.file.Paths
 
 buildscript {
     val kotlinVersion = "2.2.20"
@@ -90,6 +91,9 @@ dependencies {
 }
 
 afterEvaluate {
+    val buildDir = Paths.get("build")
+    val releaseAar = buildDir.resolve("outputs/aar/checkout-release.aar")
+
     publishing {
         publications {
             create<MavenPublication>("release") {
@@ -98,36 +102,39 @@ afterEvaluate {
                 artifactId = "reepay-android-checkout-sheet"
                 version = project.version.toString()
 
-                val webkitDep = project.configurations
-                    .getByName("api")
-                    .dependencies
-                    .find { it.group == "androidx.webkit" && it.name == "webkit" }
-
-                if (webkitDep == null) {
-                    logger.warn("⚠️ No WebKit dependency found in api configuration; POM will not include it.")
+                artifact(releaseAar) {
+                    builtBy(tasks.named("assembleRelease"))
                 }
 
                 pom.withXml {
                     val root = asNode()
-                    val depsList = (root.get("dependencies") as? groovy.util.NodeList)?.toList()
-                    val existingDeps = depsList?.firstOrNull() as? Node
-                        ?: root.appendNode("dependencies")
+                    val depsNode =
+                        root.get("dependencies") as? Node ?: root.appendNode("dependencies")
 
-                    val alreadyPresent = existingDeps.children()
-                        .filterIsInstance<Node>()
-                        .any {
-                            (it.get("groupId") as? List<*>)?.firstOrNull()
-                                ?.toString() == "androidx.webkit" &&
-                                    (it.get("artifactId") as? List<*>)?.firstOrNull()
-                                        ?.toString() == "webkit"
+                    val webkitDep = project.configurations
+                        .getByName("api")
+                        .dependencies
+                        .find { it.group == "androidx.webkit" && it.name == "webkit" }
+
+                    if (webkitDep != null) {
+                        val alreadyPresent = depsNode.children()
+                            .filterIsInstance<Node>()
+                            .any {
+                                (it.get("groupId") as? List<*>)?.firstOrNull()
+                                    ?.toString() == "androidx.webkit" &&
+                                        (it.get("artifactId") as? List<*>)?.firstOrNull()
+                                            ?.toString() == "webkit"
+                            }
+
+                        if (!alreadyPresent) {
+                            val depNode = depsNode.appendNode("dependency")
+                            depNode.appendNode("groupId", webkitDep.group)
+                            depNode.appendNode("artifactId", webkitDep.name)
+                            depNode.appendNode("version", webkitDep.version)
+                            depNode.appendNode("scope", "compile")
                         }
-
-                    if (!alreadyPresent && webkitDep != null) {
-                        val depNode = existingDeps.appendNode("dependency")
-                        depNode.appendNode("groupId", webkitDep.group)
-                        depNode.appendNode("artifactId", webkitDep.name)
-                        depNode.appendNode("version", webkitDep.version)
-                        depNode.appendNode("scope", "compile")
+                    } else {
+                        logger.warn("⚠️ No WebKit dependency found in api configuration; POM will not include it.")
                     }
                 }
             }
