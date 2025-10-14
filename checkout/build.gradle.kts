@@ -1,7 +1,5 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.gradle.api.publish.maven.MavenPublication
-import groovy.util.Node
-import java.nio.file.Paths
 
 buildscript {
     val kotlinVersion = "2.2.20"
@@ -25,7 +23,7 @@ plugins {
     id("maven-publish")
 }
 
-version = "1.0.24-test"
+version = "1.0.24-test-2"
 
 android {
     namespace = "com.billwerk.checkout"
@@ -91,8 +89,7 @@ dependencies {
 }
 
 afterEvaluate {
-    val buildDir = Paths.get("build")
-    val releaseAar = buildDir.resolve("outputs/aar/checkout-release.aar")
+    val releaseAar = file("build/outputs/aar/checkout-release.aar")
 
     publishing {
         publications {
