@@ -23,7 +23,7 @@ plugins {
     id("maven-publish")
 }
 
-version = "1.0.24-test-2"
+version = "1.0.24-test-3"
 
 android {
     namespace = "com.billwerk.checkout"
@@ -89,8 +89,6 @@ dependencies {
 }
 
 afterEvaluate {
-    val releaseAar = file("build/outputs/aar/checkout-release.aar")
-
     publishing {
         publications {
             create<MavenPublication>("release") {
@@ -98,10 +96,6 @@ afterEvaluate {
                 groupId = "com.github.reepay"
                 artifactId = "reepay-android-checkout-sheet"
                 version = project.version.toString()
-
-                artifact(releaseAar) {
-                    builtBy(tasks.named("assembleRelease"))
-                }
             }
         }
     }
