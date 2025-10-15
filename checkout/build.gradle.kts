@@ -23,7 +23,7 @@ plugins {
     id("maven-publish")
 }
 
-version = "1.0.24-test-3"
+version = "1.0.24-test-4"
 
 android {
     namespace = "com.billwerk.checkout"
