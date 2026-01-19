@@ -78,7 +78,7 @@ java {
 }
 
 dependencies {
-    api("androidx.webkit:webkit:1.14.0")
+    api("androidx.webkit:webkit:1.15.0")
     implementation("androidx.core:core-ktx:1.17.0")
     implementation("androidx.appcompat:appcompat:1.7.1")
     implementation("com.google.code.gson:gson:2.13.2")
