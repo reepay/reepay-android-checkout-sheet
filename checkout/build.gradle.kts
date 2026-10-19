@@ -2,7 +2,7 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.gradle.api.publish.maven.MavenPublication
 
 buildscript {
-    val kotlinVersion = "2.4.20"
+    val kotlinVersion = "2.4.21"
 
     repositories {
         google()
