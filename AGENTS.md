@@ -30,12 +30,12 @@ UI is `BottomSheetDialog` plus `checkout/src/main/res/layout/checkout_sheet.xml`
 
 Read the toolchain from the Gradle files and keep it as declared there. Do not bump AGP, Kotlin, Gradle, SDK levels, the JVM target, or the Java toolchain unless the task is that upgrade.
 
-- Plugin versions: root `build.gradle.kts`
+- Plugin versions: root `build.gradle.kts` and the `buildscript` block in `checkout/build.gradle.kts`
 - `minSdk`, `compileSdk`, the JVM target, and the Java toolchain: `checkout/build.gradle.kts`
 - Gradle wrapper: `gradle/wrapper/gradle-wrapper.properties`
 - Kotlin style: `kotlin.code.style` in `gradle.properties`
 
-The published version is `version` in `checkout/build.gradle.kts`. Maven coordinates are `com.github.reepay:reepay-android-checkout-sheet`. Bump the version when the public API changes, and update the demo app dependency to match.
+For an SDK release, bump `version` in `checkout/build.gradle.kts` and tag the release with that version. Update the demo app dependency only after `com.github.reepay:reepay-android-checkout-sheet` resolves from JitPack at the new tag.
 
 JitPack publishes with `./gradlew :checkout:publishToMavenLocal` (`jitpack.yml`).
 
