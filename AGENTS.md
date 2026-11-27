@@ -28,11 +28,16 @@ UI is `BottomSheetDialog` plus `checkout/src/main/res/layout/checkout_sheet.xml`
 
 ## Build and publish
 
-AGP 9.5.2, Kotlin 2.4.21, Gradle 9.9.1. minSdk 26, compileSdk 37. The library module sets a Java 17 toolchain. Leave those targets alone unless the task is a toolchain upgrade.
+Read the toolchain from the Gradle files and keep it as declared there. Do not bump AGP, Kotlin, Gradle, SDK levels, the JVM target, or the Java toolchain unless the task is that upgrade.
+
+- Plugin versions: root `build.gradle.kts`
+- `minSdk`, `compileSdk`, the JVM target, and the Java toolchain: `checkout/build.gradle.kts`
+- Gradle wrapper: `gradle/wrapper/gradle-wrapper.properties`
+- Kotlin style: `kotlin.code.style` in `gradle.properties`
 
 The published version is `version` in `checkout/build.gradle.kts`. Maven coordinates are `com.github.reepay:reepay-android-checkout-sheet`. Bump the version when the public API changes, and update the demo app dependency to match.
 
-JitPack publishes with `./gradlew :checkout:publishToMavenLocal` (`jitpack.yml`, JDK 17).
+JitPack publishes with `./gradlew :checkout:publishToMavenLocal` (`jitpack.yml`).
 
 ```bash
 ./gradlew :checkout:assembleRelease
