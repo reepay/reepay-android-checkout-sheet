@@ -29,7 +29,7 @@ See official [documentation](https://docs.frisbii.com/docs/checkout-sdk-for-andr
 
 ## Requirements
 
-The ReepayCheckoutSheet module is compatible with apps targeting Android 8.0 (API level 26) or
+The Reepay Checkout Sheet SDK is compatible with apps targeting Android 8.0 (API level 26) or
 above.
 
 ## Getting started
