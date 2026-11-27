@@ -1,4 +1,4 @@
-# ReepayCheckoutSheet Android SDK Module
+# Reepay Checkout Sheet SDK
 
 CheckoutSheet is a prebuilt UI that contains the steps to pay in Reepay Checkout window - collecting
 payment details and confirming the payment. The checkout is placed into a sheet or a fullscreen
@@ -102,7 +102,7 @@ override fun onCreate(savedInstanceState: Bundle?) {
 
     // Create configuration
     val config = CheckoutSheetConfig(
-        sessionId = "", // Session id from Billwerk+ checkout
+        sessionId = "", // Reepay Checkout session ID
         sheetStyle = SheetStyle.FULL_SCREEN, // Sets the height of the Checkout sheet
         dismissible = true, // If set to `true`, the sheet will render a close button and be dismissible by pressing outside the checkout sheet hit box.
         hideHeader = true, // If set to `true`, the sheet will be rendered without the header
