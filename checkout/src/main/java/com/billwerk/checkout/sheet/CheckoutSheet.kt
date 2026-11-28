@@ -28,7 +28,7 @@ import com.billwerk.checkout.R
 /**
  * Configuration class for checkout sheet.
  *
- * @property sessionId Billwerk+ checkout session id
+ * @property sessionId Reepay Checkout session ID
  * @property sheetStyle Style of the checkout sheet. Sets the default height of the sheet. Default: [SheetStyle.MEDIUM].
  * @property dismissible If set to `true`, the sheet will render a close button and be dismissible by pressing outside the checkout sheet hit box.
  * @property hideHeader If set to `true`, the sheet will be rendered without the header
@@ -76,7 +76,7 @@ class CheckoutSheet(private val context: Context) {
      * Opens the checkout sheet with the specified return URL. The purpose of this method is to ensure that the checkout sheet correctly resumes after an app switch (for example, Vipps EPayment)
      *
      * @param config The configuration that the checkout sheet should be loaded with
-     * @param returnUrl The return URL returned by the Billwerk+ Checkout Session
+     * @param returnUrl The return URL from the Reepay Checkout session
      */
     fun presentCheckoutReturnUrl(config: CheckoutSheetConfig, returnUrl: String) {
         setupSheet(config, returnUrl)
